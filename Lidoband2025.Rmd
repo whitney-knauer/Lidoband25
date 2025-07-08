@@ -39,10 +39,57 @@ library(gridGraphics)
 library(multcomp)
 library(hms)
 library(gt)
+library(fuzzyjoin)
+library(lubridate)
+library(data.table)
 ```
 
 
 ```{r}
+#| include: false
+#| warning: false
+#| echo: false
+
+lay <- read_csv('data/LyingTLyingB/lyingtime_report_1.csv')
+
+new <- 
+  lay |> 
+  separate(Datetime, into = c("date", "time"), sep = " ") |> 
+   mutate(
+    date = as.Date(date, format = "%m/%d/%Y"),
+    time = as_hms(paste0(time, ":00")))
+
+
+
+key<- read_csv("data/calfkey.csv")
+
+key<-key |> 
+  mutate(ondate=mdy(ondate), 
+         offdate=mdy(offdate))
+
+
+```
+
+
+
+```{r}
+#| include: false
+#| warning: false
+#| echo: false
+
+combined <- new %>%
+  inner_join(key, by = "Cow") %>%  # join on cow, keeps only matching rows
+  drop_na() 
+
+combinednew <- 
+  combined |> 
+  mutate(datetime = as.POSIXct(paste(date, time), format = "%Y-%m-%d %H:%M:%S"), 
+         datetimeon = as.POSIXct(paste(ondate, ontime), format = "%Y-%m-%d %H:%M:%S"), 
+         datetimeoff = as.POSIXct(paste (offdate, offtime), format = "%Y-%m-%d %H:%M:%S"))
+
+combinednew_filtered <- combinednew %>%
+  filter(datetime >= datetimeon, datetime <= datetimeoff)
+
 
 ```
 

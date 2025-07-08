@@ -1,0 +1,135 @@
+---
+title: "Health Scoring for EP - Annotated"
+author: "Whitney Knauer"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| echo: false
+
+library(epiDisplay)
+library(knitr)
+library(pROC)
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(gmodels)
+library(ggbeeswarm)
+library(dplyr)
+library(ggpubr)
+library(psych)
+library(lme4)
+library(Matrix)
+library(lmerTest)
+library(irr)
+library(lmerTest)
+library(emmeans)
+library(doBy)       
+library(gmodels)    
+library(car)           
+library(cowplot)       
+library(gridGraphics)  
+library(multcomp)
+library(hms)
+library(gt)
+```
+
+## Health Score Data 
+
+The below code will demonstrate how to pull in and merge two data sets (enroll and health scoring), as well as manipulate some variables to create a new data sheet. It's a starting point for pulling in the health score data, and beginning that analysis.
+
+```{r}
+#| include: false
+#| echo: false
+#| warning: false
+
+enroll <- read_csv('data/Zinpro 2024 enrollment final.csv')
+#need this as you'll need the enroll sheet to merge onto the health sheet. You'll have to use the name of the health score data sheet from your desktop and/or folder. 
+         
+
+
+#This is pulling in the health data sheet. You'll have to change the path. I suggest you just bring in the full sheet and we will only obtain the variables we want
+
+health <- read_csv('data/CHSdata_2024_08_12_08_57.csv')
+
+#Create a better data set and craete variables for TRS, Fever, Scours, scour severity, and brd. You'll have to use the name of the health score data sheet from your desktop and/or folder. 
+
+#This code just moves the variable "calf age" to after CalfID and renames it to age
+health<-
+health |> 
+  mutate(
+    age = `Calf Age`, 
+    .after = CalfID
+    )
+
+#this just shows the new data set to make sure the code above worked. 
+health
+
+
+#This code renames health to a new data set "Full" and retains only the varialbes in "select" into the new data frame (like making a new spreadsheet with only variable we want)
+
+#The next line (what comes after "mutate") creates some new varialbes TRS (total respiratory score), and Total health score. You can change the varialbe names to make sure they align with what is in your spreadsheet. 
+
+#The next couple lines (BRD = if_else()) is creating some new varialbes that give that row (calf and day) a 0/1 if the calf has the thing or not (if a calf has a TRS>4, it has BRD and receives a 1, if not, zero)
+
+#then, the "case when()" is creating a severity score for diarrhea. We likely won't use this. 
+
+Full<-
+health |> 
+  select(CalfID, age, BodyTemp, Appetite, Attitude, Nose, Eye, Ear, Cough, Temperature, Fecal, Navel, Joint) |> 
+  mutate(
+    TRS = Nose + Eye + Ear + Cough + Temperature,
+    THS = Appetite + Attitude + Nose + Eye + Ear + Cough + Temperature + Fecal + Navel + Joint, 
+    BRD = if_else(TRS>=4, 1, 0),
+    Refuse = if_else(Appetite>=2, 1, 0),
+    Scour = if_else(Fecal>=2, 1, 0),
+    Fever = if_else(BodyTemp>=2, 1, 0), 
+    Sick = if_else(THS>=4, 1, 0), 
+    DiarSS = case_when(
+      Fecal <= 1       ~ "Normal", 
+      Fecal == 2       ~ "Mild",
+      Fecal == 3       ~ "Severe"),
+    #DiarSS = factor(DiarSS, levels = c("Normal", "Mild", "Severe"))
+    )
+
+#The below code "Full" then just prints the new data sheet to make sure all the code above worked. 
+
+Full
+
+#Then we merge the data set "Full" with the data set "Enroll" by the variable "CalfID". You need to make sure both spreadsheets have the same variable name for CalfID
+
+hs <- merge(Full, enroll, by = "CalfID", all.x = TRUE)
+
+#this code will show you the new, merged data set you created, and you will likely need to write a bit more code to clean it up (bound to be some weird stuff that happens, but maybe not? )
+
+
+hs
+```
+
+## Health Score Data Checks
+
+This code will look to make sure you don't have anything weird going on in your merged data set.
+
+We should have n=4 obs per calf for 90 calves (n=360 obs, 120 per group)
+
+```{r}
+#| echo: false
+#| warning: false
+
+hs |> 
+  count(age) #this will count how many obs per day 
+
+hs |> 
+  count(D0Fed2TxGrp) #need to replace this with the name of your treatment groups (TRT, I think)
+
+hs |> 
+  group_by(age, D0Fed2TxGrp) |> 
+  count()
+
+#same for this
+
+
+```
