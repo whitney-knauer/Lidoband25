@@ -44,7 +44,6 @@ library(lubridate)
 library(data.table)
 ```
 
-
 ```{r}
 #| include: false
 #| warning: false
@@ -59,18 +58,21 @@ new <-
     date = as.Date(date, format = "%m/%d/%Y"),
     time = as_hms(paste0(time, ":00")))
 
+#remove calf that died
+new <-
+  new |> 
+  filter(Cow != 32)
 
 
 key<- read_csv("data/calfkey.csv")
 
 key<-key |> 
+  filter(Cow != 32) |> 
   mutate(ondate=mdy(ondate), 
-         offdate=mdy(offdate))
+         offdate=mdy(offdate)) 
 
 
 ```
-
-
 
 ```{r}
 #| include: false
@@ -87,9 +89,265 @@ combinednew <-
          datetimeon = as.POSIXct(paste(ondate, ontime), format = "%Y-%m-%d %H:%M:%S"), 
          datetimeoff = as.POSIXct(paste (offdate, offtime), format = "%Y-%m-%d %H:%M:%S"))
 
-combinednew_filtered <- combinednew %>%
+use <- combinednew |> 
   filter(datetime >= datetimeon, datetime <= datetimeoff)
+
+setDT(use)
+use[, incr := seq_len(.N), by = Cow]
+
+#make a new data frame that only includes what variables I want
+
+use1 <- 
+  use |> 
+  select(Cow, date, time, sday, `Motion Index`, Steps, `Lying Time`, `Lying Bouts`, `Standing Time`, TRT, incr)
+
+use1[, hour := (incr - 1) %/% 4 + 1, by = Cow]
+use1[, day := (incr -1)%/% 96+1, by = Cow]
+
+```
+
+```{r}
+#| include: false
+#| warning: false
+#| echo: false
+
+#create two new data frames hour and day that include summarized data for those variables
+
+hour <- use1[, .(
+  MotionIndex = sum(`Motion Index`),
+  Steps = sum(Steps),
+  LyingTime = sum(`Lying Time`)/60,
+  LyingBouts = sum(`Lying Bouts`),
+  StandingTime = sum(`Standing Time`)/60), 
+  by = .(Cow, TRT, hour, sday)]
+
+#dividing by 60 results in min
+
+day <- use1[, .(
+  MotionIndex = sum(`Motion Index`),
+  Steps = sum(Steps),
+  LyingTime = sum(`Lying Time`)/3600,
+  LyingBouts = sum(`Lying Bouts`),
+  StandingTime = sum(`Standing Time`)/3600
+), by = .(Cow, TRT, day, sday)]
+
+#divinding by 3600 results in hours
 
 
 ```
 
+## Hour Level
+
+### Simple Descriptive Data
+
+```{r}
+#| warning: false
+#| echo: false
+
+hour |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+hour |> 
+  group_by(TRT) |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+
+
+
+
+
+```
+
+### Plots of Lying Time, Standing Time, Lying Bouts, Steps
+
+```{r}
+#| warning: false
+#| echo: false
+
+
+lt_hs <- hour |> 
+  filter(hour<= 60) |> 
+  group_by (TRT, hour) |> 
+  summarize (m_lt = mean (LyingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lt_hs, aes(x=hour, y=m_lt, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Time by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Lying Time")+ 
+         theme_minimal()
+
+
+
+
+st_hs <- hour |> 
+  filter(hour<= 60) |> 
+  group_by (TRT, hour) |> 
+  summarize (m_st = mean (StandingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(st_hs, aes(x=hour, y=m_st, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Standing Time by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Standing Time")+ 
+         theme_minimal()
+
+
+
+lb_hs <- hour |> 
+  filter(hour<= 60) |> 
+  group_by (TRT, hour) |> 
+  summarize (m_lb = mean (LyingBouts, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lb_hs, aes(x=hour, y=m_lb, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Bouts by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Lying Bouts")+ 
+         theme_minimal()
+
+
+step_hs <- hour |> 
+  filter(hour<= 60) |> 
+  group_by (TRT, hour) |> 
+  summarize (m_step = mean (Steps, na.rm = TRUE, .groups = "drop"))
+
+ggplot(step_hs, aes(x=hour, y=m_step, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Steps by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Steps")+ 
+         theme_minimal()
+
+
+
+```
+
+## Day Level
+
+### Simple Descriptive Data
+
+```{r}
+#| warning: false
+#| echo: false
+
+day |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+day |> 
+  group_by(TRT) |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+day |> 
+  group_by(TRT, day) |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+
+```
+
+### Plots of Lying Time, Standing Time, Lying Bouts, Steps
+
+```{r}
+#| warning: false
+#| echo: false
+
+#plot of individal animals
+ggplot(day, aes(x=day, y=LyingTime, color = Cow, group = Cow))+
+         geom_line (size = 1)+
+         geom_point()+ 
+         theme_minimal()
+#who were those calves who had low lying time on day 2? Thought at first it was the calf that died, but that doesn't seem to be the case as I filtered him out. Then all seeded to behave similarly on day 3(only like 12h of data represented). Individual vaiation, pain, sensor placement, loose calves?
+
+
+
+#box plots for days 1 and 2 (24, and 48hrs post banding)
+
+day2only <- day |> 
+  filter (day < 3)
+
+#standing time
+day2only |> 
+  ggplot(mapping = aes(x = TRT, y = StandingTime, color=TRT)) +
+  theme_classic()+
+  geom_boxplot(outlier.color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.6)+
+  facet_wrap(~day)+
+   labs( title = "Average Standing Time (h) by day and Treatment", 
+           x = "", 
+           y = "Standing Time (h)")
+
+#lying time
+day2only |> 
+  ggplot(mapping = aes(x = TRT, y = LyingTime, color=TRT)) +
+  theme_classic()+
+  geom_boxplot(outlier.color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.6)+
+  facet_wrap(~day)+ 
+  labs( title = "Average Lying Time (h) by day and Treatment", 
+           x = "", 
+           y = "Lying Time (h)")
+    
+
+#lying bouts
+day2only |> 
+  ggplot(mapping = aes(x = TRT, y = LyingBouts, color=TRT)) +
+  theme_classic()+
+  geom_boxplot(outlier.color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.6)+
+  facet_wrap(~day)+ 
+  labs( title = "Average Lying Bouts by day and Treatment", 
+           x = "", 
+           y = "Lying Bouts (n)")
+
+#steps
+day2only |> 
+  ggplot(mapping = aes(x = TRT, y = Steps, color=TRT)) +
+  theme_classic()+
+  geom_boxplot(outlier.color = "black") +
+  geom_jitter(width = 0.2, alpha = 0.6)+
+  facet_wrap(~day)+ 
+  labs( title = "Average Steps by day and Treatment", 
+           x = "", 
+           y = "Steps (n)")
+
+
+
+```
