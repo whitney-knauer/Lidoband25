@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="WAK">
-<meta name="dcterms.date" content="2025-07-09">
+<meta name="dcterms.date" content="2025-07-10">
 
 <title>Lidoband 2025</title>
 <style>
@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -52,10 +86,20 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#simple-descriptive-data" id="toc-simple-descriptive-data" class="nav-link" data-scroll-target="#simple-descriptive-data">Simple Descriptive Data</a></li>
   <li><a href="#plots-of-lying-time-standing-time-lying-bouts-steps" id="toc-plots-of-lying-time-standing-time-lying-bouts-steps" class="nav-link" data-scroll-target="#plots-of-lying-time-standing-time-lying-bouts-steps">Plots of Lying Time, Standing Time, Lying Bouts, Steps</a></li>
   </ul></li>
-  <li><a href="#day-level" id="toc-day-level" class="nav-link" data-scroll-target="#day-level">Day Level</a>
+  <li><a href="#six-hour-level-other-increment" id="toc-six-hour-level-other-increment" class="nav-link" data-scroll-target="#six-hour-level-other-increment">Six Hour Level (Other increment?)</a>
+  <ul class="collapse">
+  <li><a href="#simple-description" id="toc-simple-description" class="nav-link" data-scroll-target="#simple-description">Simple Description</a></li>
+  <li><a href="#plots-of-lying-time-standing-time-lying-bouts-steps-1" id="toc-plots-of-lying-time-standing-time-lying-bouts-steps-1" class="nav-link" data-scroll-target="#plots-of-lying-time-standing-time-lying-bouts-steps-1">Plots of Lying Time, Standing Time, Lying Bouts, Steps</a></li>
+  </ul></li>
+  <li><a href="#twelve-hour-level" id="toc-twelve-hour-level" class="nav-link" data-scroll-target="#twelve-hour-level">Twelve Hour Level</a>
   <ul class="collapse">
   <li><a href="#simple-descriptive-data-1" id="toc-simple-descriptive-data-1" class="nav-link" data-scroll-target="#simple-descriptive-data-1">Simple Descriptive Data</a></li>
-  <li><a href="#plots-of-lying-time-standing-time-lying-bouts-steps-1" id="toc-plots-of-lying-time-standing-time-lying-bouts-steps-1" class="nav-link" data-scroll-target="#plots-of-lying-time-standing-time-lying-bouts-steps-1">Plots of Lying Time, Standing Time, Lying Bouts, Steps</a></li>
+  <li><a href="#plots-of-lying-time-standing-time-lying-bouts-steps-2" id="toc-plots-of-lying-time-standing-time-lying-bouts-steps-2" class="nav-link" data-scroll-target="#plots-of-lying-time-standing-time-lying-bouts-steps-2">Plots of Lying Time, Standing Time, Lying Bouts, Steps</a></li>
+  </ul></li>
+  <li><a href="#day-level" id="toc-day-level" class="nav-link" data-scroll-target="#day-level">Day Level</a>
+  <ul class="collapse">
+  <li><a href="#simple-descriptive-data-2" id="toc-simple-descriptive-data-2" class="nav-link" data-scroll-target="#simple-descriptive-data-2">Simple Descriptive Data</a></li>
+  <li><a href="#plots-of-lying-time-standing-time-lying-bouts-steps-3" id="toc-plots-of-lying-time-standing-time-lying-bouts-steps-3" class="nav-link" data-scroll-target="#plots-of-lying-time-standing-time-lying-bouts-steps-3">Plots of Lying Time, Standing Time, Lying Bouts, Steps</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -83,7 +127,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">July 9, 2025</p>
+      <p class="date">July 10, 2025</p>
     </div>
   </div>
   
@@ -130,10 +174,272 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </section>
 </section>
-<section id="day-level" class="level2">
-<h2 class="anchored" data-anchor-id="day-level">Day Level</h2>
+<section id="six-hour-level-other-increment" class="level2">
+<h2 class="anchored" data-anchor-id="six-hour-level-other-increment">Six Hour Level (Other increment?)</h2>
+<section id="simple-description" class="level3">
+<h3 class="anchored" data-anchor-id="simple-description">Simple Description</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|warning: false</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#|echo: false</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>six <span class="sc">|&gt;</span> </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">motion =</span> <span class="fu">mean</span> (MotionIndex), </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>   <span class="at">steps =</span> <span class="fu">mean</span> (Steps), </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>   <span class="at">lying =</span> <span class="fu">mean</span> (LyingTime), </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>   <span class="at">lb =</span> <span class="fu">mean</span> (LyingBouts),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>   <span class="at">stand =</span> <span class="fu">mean</span> (StandingTime)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    motion    steps         lying       lb          stand
+1 370.4884 56.16185 4.918556 secs 4.861272 0.8372246 secs</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>six <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(TRT) <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>   <span class="at">motion =</span> <span class="fu">mean</span> (MotionIndex), </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>   <span class="at">steps =</span> <span class="fu">mean</span> (Steps), </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">lying =</span> <span class="fu">mean</span> (LyingTime), </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>   <span class="at">lb =</span> <span class="fu">mean</span> (LyingBouts),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>   <span class="at">stand =</span> <span class="fu">mean</span> (StandingTime)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 6
+  TRT   motion steps lying            lb stand         
+  &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;drtn&gt;        &lt;dbl&gt; &lt;drtn&gt;        
+1 B+N     316.  47.4 4.963116 secs  4.57 0.7879666 secs
+2 BO      437.  68.1 4.881263 secs  5.01 0.8784776 secs
+3 LIDO    359.  53.0 4.911257 secs  5.00 0.8452645 secs</code></pre>
+</div>
+</div>
+</section>
+<section id="plots-of-lying-time-standing-time-lying-bouts-steps-1" class="level3">
+<h3 class="anchored" data-anchor-id="plots-of-lying-time-standing-time-lying-bouts-steps-1">Plots of Lying Time, Standing Time, Lying Bouts, Steps</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>lt_six <span class="ot">&lt;-</span> six <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span> (six<span class="sc">&lt;=</span><span class="dv">10</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span> (TRT, six) <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (<span class="at">m_lt =</span> <span class="fu">mean</span> (LyingTime, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">.groups =</span> <span class="st">"drop"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'TRT'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lt_six, <span class="fu">aes</span>(<span class="at">x=</span>six, <span class="at">y=</span>m_lt, <span class="at">color =</span> TRT))<span class="sc">+</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_line</span> (<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">labs</span> (</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Average Lying Time by Six Hour Increment and Treatment"</span>, </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Hour"</span>, </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Average Lying Time(h)"</span>) <span class="sc">+</span> </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Don't know how to automatically pick scale for object of type &lt;difftime&gt;.
+Defaulting to continuous.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>st_six <span class="ot">&lt;-</span> six <span class="sc">|&gt;</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(six<span class="sc">&lt;=</span> <span class="dv">10</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span> (TRT, six) <span class="sc">|&gt;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (<span class="at">m_st =</span> <span class="fu">mean</span> (StandingTime, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">.groups =</span> <span class="st">"drop"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'TRT'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(st_six, <span class="fu">aes</span>(<span class="at">x=</span>six, <span class="at">y=</span>m_st, <span class="at">color =</span> TRT))<span class="sc">+</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_line</span> (<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">labs</span> (</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Average Standing Time by Six Hour Increment and Treatment"</span>, </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Hour"</span>, </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Average Standing Time"</span>)<span class="sc">+</span> </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Don't know how to automatically pick scale for object of type &lt;difftime&gt;.
+Defaulting to continuous.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>lb_six <span class="ot">&lt;-</span> six <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(six<span class="sc">&lt;=</span> <span class="dv">10</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span> (TRT, six) <span class="sc">|&gt;</span> </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (<span class="at">m_lb =</span> <span class="fu">mean</span> (LyingBouts, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">.groups =</span> <span class="st">"drop"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'TRT'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lb_six, <span class="fu">aes</span>(<span class="at">x=</span>six, <span class="at">y=</span>m_lb, <span class="at">color =</span> TRT))<span class="sc">+</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_line</span> (<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">labs</span> (</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Average Lying Bouts by Hour and Treatment"</span>, </span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Hour"</span>, </span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Average Lying Bouts"</span>)<span class="sc">+</span> </span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-8-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>step_six <span class="ot">&lt;-</span> six <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(six<span class="sc">&lt;=</span> <span class="dv">10</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span> (TRT, six) <span class="sc">|&gt;</span> </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (<span class="at">m_step =</span> <span class="fu">mean</span> (Steps, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">.groups =</span> <span class="st">"drop"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'TRT'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(step_six, <span class="fu">aes</span>(<span class="at">x=</span>six, <span class="at">y=</span>m_step, <span class="at">color =</span> TRT))<span class="sc">+</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_line</span> (<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">labs</span> (</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Average Steps by Hour and Treatment"</span>, </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Hour"</span>, </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Average Steps"</span>)<span class="sc">+</span> </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-8-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="twelve-hour-level" class="level2">
+<h2 class="anchored" data-anchor-id="twelve-hour-level">Twelve Hour Level</h2>
 <section id="simple-descriptive-data-1" class="level3">
 <h3 class="anchored" data-anchor-id="simple-descriptive-data-1">Simple Descriptive Data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|warning: false</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co">#|echo: false</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>twelve <span class="sc">|&gt;</span> </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">motion =</span> <span class="fu">mean</span> (MotionIndex), </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>   <span class="at">steps =</span> <span class="fu">mean</span> (Steps), </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>   <span class="at">lying =</span> <span class="fu">mean</span> (LyingTime), </span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>   <span class="at">lb =</span> <span class="fu">mean</span> (LyingBouts),</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>   <span class="at">stand =</span> <span class="fu">mean</span> (StandingTime)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    motion    steps         lying       lb         stand
+1 680.0477 103.0875 9.028224 secs 8.923077 1.536762 secs</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>twelve <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(TRT) <span class="sc">|&gt;</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>   <span class="at">motion =</span> <span class="fu">mean</span> (MotionIndex), </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>   <span class="at">steps =</span> <span class="fu">mean</span> (Steps), </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">lying =</span> <span class="fu">mean</span> (LyingTime), </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>   <span class="at">lb =</span> <span class="fu">mean</span> (LyingBouts),</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>   <span class="at">stand =</span> <span class="fu">mean</span> (StandingTime)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 6
+  TRT   motion steps lying            lb stand        
+  &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;drtn&gt;        &lt;dbl&gt; &lt;drtn&gt;       
+1 B+N     579.  86.9 9.099045 secs  8.38 1.444605 secs
+2 BO      801. 125.  8.948981 secs  9.18 1.610542 secs
+3 LIDO    660.  97.6 9.036713 secs  9.21 1.555287 secs</code></pre>
+</div>
+</div>
+</section>
+<section id="plots-of-lying-time-standing-time-lying-bouts-steps-2" class="level3">
+<h3 class="anchored" data-anchor-id="plots-of-lying-time-standing-time-lying-bouts-steps-2">Plots of Lying Time, Standing Time, Lying Bouts, Steps</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|warning: false</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co">#|echo: false</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>lt_12 <span class="ot">&lt;-</span> twelve <span class="sc">|&gt;</span> </span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span> (twelve<span class="sc">&lt;</span><span class="dv">6</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span> (TRT, twelve) <span class="sc">|&gt;</span> </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (<span class="at">m_lt =</span> <span class="fu">mean</span> (LyingTime, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">.groups =</span> <span class="st">"drop"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'TRT'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lt_12, <span class="fu">aes</span>(<span class="at">x=</span>twelve, <span class="at">y=</span>m_lt, <span class="at">color =</span> TRT))<span class="sc">+</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_line</span> (<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">labs</span> (</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Average Lying Time by 12 Hour Increment and Treatment"</span>, </span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Hour"</span>, </span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Average Lying Time(h)"</span>) <span class="sc">+</span> </span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Don't know how to automatically pick scale for object of type &lt;difftime&gt;.
+Defaulting to continuous.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>st_12 <span class="ot">&lt;-</span> twelve <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(twelve<span class="sc">&lt;</span> <span class="dv">6</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span> (TRT, twelve) <span class="sc">|&gt;</span> </span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (<span class="at">m_st =</span> <span class="fu">mean</span> (StandingTime, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">.groups =</span> <span class="st">"drop"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'TRT'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(st_12, <span class="fu">aes</span>(<span class="at">x=</span>twelve, <span class="at">y=</span>m_st, <span class="at">color =</span> TRT))<span class="sc">+</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_line</span> (<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">labs</span> (</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Average Standing Time by Six Hour Increment and Treatment"</span>, </span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Hour"</span>, </span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Average Standing Time"</span>)<span class="sc">+</span> </span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Don't know how to automatically pick scale for object of type &lt;difftime&gt;.
+Defaulting to continuous.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>lb_12 <span class="ot">&lt;-</span> twelve <span class="sc">|&gt;</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(twelve<span class="sc">&lt;</span><span class="dv">6</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span> (TRT, twelve) <span class="sc">|&gt;</span> </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (<span class="at">m_lb =</span> <span class="fu">mean</span> (LyingBouts, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">.groups =</span> <span class="st">"drop"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'TRT'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lb_12, <span class="fu">aes</span>(<span class="at">x=</span>twelve, <span class="at">y=</span>m_lb, <span class="at">color =</span> TRT))<span class="sc">+</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_line</span> (<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">labs</span> (</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Average Lying Bouts by Hour and Treatment"</span>, </span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Hour"</span>, </span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Average Lying Bouts"</span>)<span class="sc">+</span> </span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-10-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>step_12 <span class="ot">&lt;-</span> twelve <span class="sc">|&gt;</span> </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(twelve<span class="sc">&lt;</span><span class="dv">6</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span> (TRT, twelve) <span class="sc">|&gt;</span> </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span> (<span class="at">m_step =</span> <span class="fu">mean</span> (Steps, <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">.groups =</span> <span class="st">"drop"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'TRT'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(step_12, <span class="fu">aes</span>(<span class="at">x=</span>twelve, <span class="at">y=</span>m_step, <span class="at">color =</span> TRT))<span class="sc">+</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_line</span> (<span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">labs</span> (</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">title =</span> <span class="st">"Average Steps by Hour and Treatment"</span>, </span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Hour"</span>, </span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="st">"Average Steps"</span>)<span class="sc">+</span> </span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-10-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="day-level" class="level2">
+<h2 class="anchored" data-anchor-id="day-level">Day Level</h2>
+<section id="simple-descriptive-data-2" class="level3">
+<h3 class="anchored" data-anchor-id="simple-descriptive-data-2">Simple Descriptive Data</h3>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>    motion    steps         lying       lb         stand
@@ -164,23 +470,23 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </section>
-<section id="plots-of-lying-time-standing-time-lying-bouts-steps-1" class="level3">
-<h3 class="anchored" data-anchor-id="plots-of-lying-time-standing-time-lying-bouts-steps-1">Plots of Lying Time, Standing Time, Lying Bouts, Steps</h3>
+<section id="plots-of-lying-time-standing-time-lying-bouts-steps-3" class="level3">
+<h3 class="anchored" data-anchor-id="plots-of-lying-time-standing-time-lying-bouts-steps-3">Plots of Lying Time, Standing Time, Lying Bouts, Steps</h3>
 <div class="cell">
 <div class="cell-output-display">
-<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display">
-<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid" width="672"></p>
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-12-2.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display">
-<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-8-3.png" class="img-fluid" width="672"></p>
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-12-3.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display">
-<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-8-4.png" class="img-fluid" width="672"></p>
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-12-4.png" class="img-fluid" width="672"></p>
 </div>
 <div class="cell-output-display">
-<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-8-5.png" class="img-fluid" width="672"></p>
+<p><img src="Lidoband2025_files/figure-html/unnamed-chunk-12-5.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>

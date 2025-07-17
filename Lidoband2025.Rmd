@@ -103,6 +103,8 @@ use1 <-
 
 use1[, hour := (incr - 1) %/% 4 + 1, by = Cow]
 use1[, day := (incr -1)%/% 96+1, by = Cow]
+use1[, six := (incr -1)%/% 24+1, by = Cow]
+use1[, twelve := (incr -1)%/% 48+1, by = Cow]
 
 ```
 
@@ -132,6 +134,23 @@ day <- use1[, .(
 ), by = .(Cow, TRT, day, sday)]
 
 #divinding by 3600 results in hours
+
+six <- use1[, .(
+  MotionIndex = sum(`Motion Index`),
+  Steps = sum(Steps),
+  LyingTime = sum(`Lying Time`)/3600,
+  LyingBouts = sum(`Lying Bouts`),
+  StandingTime = sum(`Standing Time`)/3600
+), by = .(Cow, TRT, six, sday)]
+
+twelve <- use1[, .(
+  MotionIndex = sum(`Motion Index`),
+  Steps = sum(Steps),
+  LyingTime = sum(`Lying Time`)/3600,
+  LyingBouts = sum(`Lying Bouts`),
+  StandingTime = sum(`Standing Time`)/3600
+), by = .(Cow, TRT, twelve, sday)]
+
 
 
 ```
@@ -239,6 +258,210 @@ ggplot(step_hs, aes(x=hour, y=m_step, color = TRT))+
            y = "Average Steps")+ 
          theme_minimal()
 
+
+
+```
+
+## Six Hour Level (Other increment?)
+
+### Simple Description
+
+```{r}
+#|warning: false
+#|echo: false
+
+six |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+six |> 
+  group_by(TRT) |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+
+
+
+
+```
+
+### Plots of Lying Time, Standing Time, Lying Bouts, Steps
+
+```{r}
+
+lt_six <- six |> 
+  filter (six<=10) |> 
+  group_by (TRT, six) |> 
+  summarize (m_lt = mean (LyingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lt_six, aes(x=six, y=m_lt, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Time by Six Hour Increment and Treatment", 
+           x = "Hour", 
+           y = "Average Lying Time(h)") + 
+         theme_minimal()
+
+
+
+
+st_six <- six |> 
+  filter(six<= 10) |> 
+  group_by (TRT, six) |> 
+  summarize (m_st = mean (StandingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(st_six, aes(x=six, y=m_st, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Standing Time by Six Hour Increment and Treatment", 
+           x = "Hour", 
+           y = "Average Standing Time")+ 
+         theme_minimal()
+
+
+
+lb_six <- six |> 
+  filter(six<= 10) |> 
+  group_by (TRT, six) |> 
+  summarize (m_lb = mean (LyingBouts, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lb_six, aes(x=six, y=m_lb, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Bouts by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Lying Bouts")+ 
+         theme_minimal()
+
+
+step_six <- six |> 
+  filter(six<= 10) |> 
+  group_by (TRT, six) |> 
+  summarize (m_step = mean (Steps, na.rm = TRUE, .groups = "drop"))
+
+ggplot(step_six, aes(x=six, y=m_step, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Steps by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Steps")+ 
+         theme_minimal()
+
+
+```
+
+## Twelve Hour Level
+
+### Simple Descriptive Data
+
+```{r}
+#|warning: false
+#|echo: false
+
+twelve |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+twelve |> 
+  group_by(TRT) |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+
+```
+
+### Plots of Lying Time, Standing Time, Lying Bouts, Steps
+
+```{r}
+#|warning: false
+#|echo: false
+
+
+lt_12 <- twelve |> 
+  filter (twelve<6) |> 
+  group_by (TRT, twelve) |> 
+  summarize (m_lt = mean (LyingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lt_12, aes(x=twelve, y=m_lt, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Time by 12 Hour Increment and Treatment", 
+           x = "Hour", 
+           y = "Average Lying Time(h)") + 
+         theme_minimal()
+
+
+
+
+st_12 <- twelve |> 
+  filter(twelve< 6) |> 
+  group_by (TRT, twelve) |> 
+  summarize (m_st = mean (StandingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(st_12, aes(x=twelve, y=m_st, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Standing Time by Six Hour Increment and Treatment", 
+           x = "Hour", 
+           y = "Average Standing Time")+ 
+         theme_minimal()
+
+
+
+lb_12 <- twelve |> 
+  filter(twelve<6) |> 
+  group_by (TRT, twelve) |> 
+  summarize (m_lb = mean (LyingBouts, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lb_12, aes(x=twelve, y=m_lb, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Bouts by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Lying Bouts")+ 
+         theme_minimal()
+
+
+step_12 <- twelve |> 
+  filter(twelve<6) |> 
+  group_by (TRT, twelve) |> 
+  summarize (m_step = mean (Steps, na.rm = TRUE, .groups = "drop"))
+
+ggplot(step_12, aes(x=twelve, y=m_step, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Steps by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Steps")+ 
+         theme_minimal()
 
 
 ```
