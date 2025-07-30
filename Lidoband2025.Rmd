@@ -29,7 +29,6 @@ library(lme4)
 library(Matrix)
 library(lmerTest)
 library(irr)
-library(lmerTest)
 library(emmeans)
 library(doBy)       
 library(gmodels)    
@@ -42,6 +41,8 @@ library(gt)
 library(fuzzyjoin)
 library(lubridate)
 library(data.table)
+library(nlme)
+library(lubridate)
 ```
 
 ```{r}
@@ -49,14 +50,13 @@ library(data.table)
 #| warning: false
 #| echo: false
 
-lay <- read_csv('data/LyingTLyingB/lyingtime_report_1.csv')
+lay <- read_csv('data/LyingTLyingB/lyingtime_report_1_ALL.csv')
 
-new <- 
-  lay |> 
-  separate(Datetime, into = c("date", "time"), sep = " ") |> 
-   mutate(
-    date = as.Date(date, format = "%m/%d/%Y"),
-    time = as_hms(paste0(time, ":00")))
+new <- lay |>
+  mutate(
+    date = as.Date(Datetime),
+    time = hms::as_hms(Datetime)
+  )
 
 #remove calf that died
 new <-
@@ -79,9 +79,10 @@ key<-key |>
 #| warning: false
 #| echo: false
 
-combined <- new %>%
-  inner_join(key, by = "Cow") %>%  # join on cow, keeps only matching rows
-  drop_na() 
+intersect(new$Cow, key$Cow)
+
+combined <- new |> 
+  inner_join(key, by = "Cow") 
 
 combinednew <- 
   combined |> 
@@ -105,6 +106,7 @@ use1[, hour := (incr - 1) %/% 4 + 1, by = Cow]
 use1[, day := (incr -1)%/% 96+1, by = Cow]
 use1[, six := (incr -1)%/% 24+1, by = Cow]
 use1[, twelve := (incr -1)%/% 48+1, by = Cow]
+use1[, four := (incr -1)%/% 16+1, by = Cow]
 
 ```
 
@@ -152,6 +154,13 @@ twelve <- use1[, .(
 ), by = .(Cow, TRT, twelve, sday)]
 
 
+four <- use1[, .(
+  MotionIndex = sum(`Motion Index`),
+  Steps = sum(Steps),
+  LyingTime = sum(`Lying Time`)/3600,
+  LyingBouts = sum(`Lying Bouts`),
+  StandingTime = sum(`Standing Time`)/3600
+), by = .(Cow, TRT, four, sday)]
 
 ```
 
@@ -171,6 +180,26 @@ hour |>
    lb = mean (LyingBouts),
    stand = mean (StandingTime)
   )
+
+hour |> 
+  ggplot(aes (x = Steps))+
+  geom_histogram()
+
+hour |> 
+  ggplot(aes (x = LyingTime))+
+  geom_histogram()
+
+hour |> 
+  ggplot(aes (x = LyingBouts))+
+  geom_histogram()
+
+hour |> 
+  ggplot(aes (x = StandingTime))+
+  geom_histogram()
+
+
+
+
 
 hour |> 
   group_by(TRT) |> 
@@ -258,6 +287,114 @@ ggplot(step_hs, aes(x=hour, y=m_step, color = TRT))+
            y = "Average Steps")+ 
          theme_minimal()
 
+
+
+```
+
+## Four Hour Level
+
+### Simple Description
+
+```{r}
+#|warning: false
+#|echo: false
+
+four |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+four |> 
+  group_by(TRT) |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime)
+  )
+
+```
+
+### Plots of Lying Time, Standing Time, Lying Bouts, Steps
+
+```{r}
+
+lt_four <- four |> 
+  filter(four<16) |> 
+  group_by (TRT, four) |> 
+  summarize (m_lt = mean (LyingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lt_four, aes(x=four, y=m_lt, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Time by Four Hour Increment and Treatment", 
+           x = "Four Hour Increment", 
+           y = "Average Lying Time(h)")+
+      scale_x_continuous(limits = c(0, 16), breaks = seq(0, 16, by = 1))+
+      scale_y_continuous(limits = c(2, 5), breaks = seq(2, 5, by = 0.5)) +
+  theme_classic()
+
+
+
+
+st_four <- four|> 
+  filter(four< 16) |> 
+  group_by (TRT, four) |> 
+  summarize (m_st = mean (StandingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(st_four, aes(x=four, y=m_st, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Standing Time by Four Hour Increment and Treatment", 
+           x = "Four Hour Increment", 
+           y = "Average Standing Time")+
+      scale_x_continuous(limits = c(0, 16), breaks = seq(0, 16, by = 1))+
+      scale_y_continuous(limits = c(0, 2), breaks = seq(0, 2, by = 0.5)) +
+  theme_classic()
+        
+
+
+
+lb_four <- four|> 
+  filter(four< 16) |> 
+  group_by (TRT, four) |> 
+  summarize (m_lb = mean (LyingBouts, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lb_four, aes(x=four, y=m_lb, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Bouts by Hour and Treatment", 
+           x = "Four Hour Increment", 
+           y = "Average Lying Bouts")+ 
+      scale_x_continuous(limits = c(0, 16), breaks = seq(0, 16, by = 1))+
+      scale_y_continuous(limits = c(0, 8), breaks = seq(0, 8, by = 1)) +
+  theme_classic()
+      
+
+
+step_four <- four |> 
+  filter(four< 16) |> 
+  group_by (TRT, four) |> 
+  summarize (m_step = mean (Steps, na.rm = TRUE, .groups = "drop"))
+
+ggplot(step_four, aes(x=four, y=m_step, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Steps by Hour and Treatment", 
+           x = "Four Hour Increment", 
+           y = "Average Steps")+ 
+      scale_y_continuous(limits = c(0, 125), breaks = seq(0, 125, by = 25))+
+      scale_x_continuous(limits = c(0, 16), breaks = seq(0, 16, by = 1)) +
+         theme_classic()
 
 
 ```
@@ -573,4 +710,291 @@ day2only |>
 
 
 
+```
+
+## Models - 4 Hour
+
+### Lying Time
+
+```{r}
+fourmodel <- four |> 
+  filter(four<16)
+
+fourmodel$four <- factor(fourmodel$four, levels = unique(fourmodel$four))  # if already time-ordered
+fourmodel$TimeNum <- as.numeric(fourmodel$four)
+
+
+mod_base <- lme(
+  fixed = LyingTime ~ four * TRT,
+  random = ~ 1 | Cow,
+  data = fourmodel
+)
+
+mod_ar1 <- lme(
+  fixed = LyingTime ~ four * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = fourmodel
+)
+
+mod_rs <- lme(
+  fixed = LyingTime ~ four * TRT,
+  random = ~ TimeNum | Cow,
+  data = fourmodel
+)
+
+
+plot (mod_base)
+plot(mod_ar1)
+plot(mod_rs)
+
+anova(mod_base, mod_ar1, mod_rs)
+
+#AR1 is the best model based on fit
+
+
+
+mod_ar1 <- lme(
+  fixed = LyingTime ~ four * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = fourmodel
+)
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT * four)
+summary(emm)
+pairs(emm, by = "four")
+pairs(emm, by = "TRT")
+
+emm_df <- as.data.frame(emm)
+
+ggplot(emm_df, aes(x = four, y = emmean, color = TRT, group = TRT)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  labs(
+    x = "Time (four)",
+    y = "Estimated Marginal Means of Lying Time",
+    title = "Model-Adjusted Means by Treatment and Time"
+  ) +
+  theme_classic()
+
+
+
+```
+
+### Standing Time
+
+```{r}
+fourmodel <- four |> 
+  filter(four<16)
+
+fourmodel$four <- factor(fourmodel$four, levels = unique(fourmodel$four))  # if already time-ordered
+fourmodel$TimeNum <- as.numeric(fourmodel$four)
+
+
+mod_base <- lme(
+  fixed = StandingTime ~ four * TRT,
+  random = ~ 1 | Cow,
+  data = fourmodel
+)
+
+
+mod_ar1 <- lme(
+  fixed = StandingTime ~ four * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = fourmodel
+)
+
+mod_rs <- lme(
+  fixed = StandingTime ~ four * TRT,
+  random = ~ TimeNum | Cow,
+  data = fourmodel
+)
+
+
+plot (mod_base)
+plot(mod_ar1)
+plot(mod_rs)
+
+anova(mod_base, mod_ar1, mod_rs)
+
+#AR1 is the best model based on fit
+
+
+
+mod_ar1 <- lme(
+  fixed = StandingTime ~ four * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = fourmodel
+)
+
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT * four)
+summary(emm)
+pairs(emm, by = "four")
+pairs(emm, by = "TRT")
+
+emm_df <- as.data.frame(emm)
+
+ggplot(emm_df, aes(x = four, y = emmean, color = TRT, group = TRT)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  labs(
+    x = "Time (four)",
+    y = "Estimated Marginal Means of Standing Time",
+    title = "Model-Adjusted Means by Treatment and Time"
+  ) +
+  theme_classic()
+
+
+
+```
+
+### Lying Bouts
+
+```{r}
+fourmodel <- four |> 
+  filter(four<16)
+
+fourmodel$four <- factor(fourmodel$four, levels = unique(fourmodel$four))  # if already time-ordered
+fourmodel$TimeNum <- as.numeric(fourmodel$four)
+
+
+mod_base <- lme(
+  fixed = LyingBouts ~ four * TRT,
+  random = ~ 1 | Cow,
+  data = fourmodel
+)
+
+
+mod_ar1 <- lme(
+  fixed = LyingBouts ~ four * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = fourmodel
+)
+
+mod_rs <- lme(
+  fixed = LyingBouts ~ four * TRT,
+  random = ~ TimeNum | Cow,
+  data = fourmodel
+)
+
+
+plot (mod_base)
+plot(mod_ar1)
+plot(mod_rs)
+
+anova(mod_base, mod_ar1, mod_rs)
+
+#AR1 is the best model based on fit
+
+
+
+mod_ar1 <- lme(
+  fixed = LyingBouts ~ four * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = fourmodel
+)
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT * four)
+summary(emm)
+pairs(emm, by = "four")
+pairs(emm, by = "TRT", adjust="tukey")
+
+emm_df <- as.data.frame(emm)
+
+ggplot(emm_df, aes(x = four, y = emmean, color = TRT, group = TRT)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  labs(
+    x = "Time (four)",
+    y = "Estimated Marginal Means of Lying Bouts",
+    title = "Model-Adjusted Means by Treatment and Time"
+  ) +
+  theme_classic()
+
+
+
+```
+
+### Steps
+
+```{r}
+fourmodel <- four |> 
+  filter(four<16)
+
+fourmodel$four <- factor(fourmodel$four, levels = unique(fourmodel$four))  # if already time-ordered
+fourmodel$TimeNum <- as.numeric(fourmodel$four)
+
+
+mod_base <- lme(
+  fixed = Steps ~ four * TRT,
+  random = ~ 1 | Cow,
+  data = fourmodel
+)
+
+
+mod_ar1 <- lme(
+  fixed = Steps ~ four * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = fourmodel
+)
+
+mod_rs <- lme(
+  fixed = Steps ~ four * TRT,
+  random = ~ TimeNum | Cow,
+  data = fourmodel
+)
+
+
+plot (mod_base)
+plot(mod_ar1)
+plot(mod_rs)
+
+anova(mod_base, mod_ar1, mod_rs)
+
+#AR1 is the best model based on fit
+
+
+
+mod_ar1 <- lme(
+  fixed = Steps ~ four * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = fourmodel
+)
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT * four)
+summary(emm)
+pairs(emm, by = "four")
+pairs(emm, by = "TRT", adjust="tukey")
+
+emm_df <- as.data.frame(emm)
+
+ggplot(emm_df, aes(x = four, y = emmean, color = TRT, group = TRT)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  labs(
+    x = "Time (four)",
+    y = "Estimated Marginal Means of Lying Bouts",
+    title = "Model-Adjusted Means by Treatment and Time"
+  ) +
+  theme_classic()
 ```
