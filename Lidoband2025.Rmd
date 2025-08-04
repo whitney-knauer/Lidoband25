@@ -177,6 +177,7 @@ hour |>
    motion = mean (MotionIndex), 
    steps = mean (Steps), 
    lying = mean (LyingTime), 
+   sdlying = sd(LyingTime),
    lb = mean (LyingBouts),
    stand = mean (StandingTime)
   )
@@ -207,13 +208,24 @@ hour |>
    motion = mean (MotionIndex), 
    steps = mean (Steps), 
    lying = mean (LyingTime), 
+   sdlying = sd(LyingTime),
    lb = mean (LyingBouts),
    stand = mean (StandingTime)
   )
 
+#what if we remove all the data that is >2SD in Lying time from the mean (so calves that had less than 51.1 - 2(11.8) or 23.6 min lying are removed from the data set. How many obs does that get rid of? (n = 5951 -> 5625, remove 326 observations ))
 
+noout2 <- hour |> 
+  filter (
+    LyingTime > 27.5)
 
-
+#what about three SDs? 
+#How many obs does that get rid of? (n = 5951 -> 5789, remove 162 observations ))
+  
+noout3 <- hour |> 
+  filter(
+    LyingTime > 15.7
+  )
 
 
 ```
@@ -223,6 +235,26 @@ hour |>
 ```{r}
 #| warning: false
 #| echo: false
+
+
+
+#plot of individal animals with hour
+ggplot(hour, aes(x=hour, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
+         geom_point()+ 
+         theme_minimal()
+
+#plot of individual animals with noout2
+ggplot(noout2, aes(x=hour, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
+         geom_point()+ 
+         theme_minimal()
+
+#plot of individual animals with noout3
+ggplot(noout3, aes(x=hour, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
+         geom_point()+ 
+         theme_minimal()
 
 
 lt_hs <- hour |> 
@@ -323,6 +355,13 @@ four |>
 ### Plots of Lying Time, Standing Time, Lying Bouts, Steps
 
 ```{r}
+
+#plot of individal animals
+ggplot(four, aes(x=four, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
+         geom_point()+ 
+         theme_minimal()
+
 
 lt_four <- four |> 
   filter(four<16) |> 
@@ -436,6 +475,15 @@ six |>
 
 ```{r}
 
+#plot of individal animals
+ggplot(six, aes(x=six, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
+         geom_point()+ 
+         theme_minimal()
+
+
+
+
 lt_six <- six |> 
   filter (six<=10) |> 
   group_by (TRT, six) |> 
@@ -538,6 +586,13 @@ twelve |>
 #|echo: false
 
 
+#plot of individal animals
+ggplot(twelve, aes(x=twelve, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
+         geom_point()+ 
+         theme_minimal()
+
+
 lt_12 <- twelve |> 
   filter (twelve<6) |> 
   group_by (TRT, twelve) |> 
@@ -615,7 +670,8 @@ day |>
   summarize (
    motion = mean (MotionIndex), 
    steps = mean (Steps), 
-   lying = mean (LyingTime), 
+   lying = mean (LyingTime),
+   sdlay = sd (LyingTime),
    lb = mean (LyingBouts),
    stand = mean (StandingTime)
   )
@@ -640,7 +696,6 @@ day |>
    stand = mean (StandingTime)
   )
 
-
 ```
 
 ### Plots of Lying Time, Standing Time, Lying Bouts, Steps
@@ -650,12 +705,11 @@ day |>
 #| echo: false
 
 #plot of individal animals
-ggplot(day, aes(x=day, y=LyingTime, color = Cow, group = Cow))+
-         geom_line (size = 1)+
+ggplot(day, aes(x=day, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
          geom_point()+ 
          theme_minimal()
-#who were those calves who had low lying time on day 2? Thought at first it was the calf that died, but that doesn't seem to be the case as I filtered him out. Then all seeded to behave similarly on day 3(only like 12h of data represented). Individual vaiation, pain, sensor placement, loose calves?
-
+#who were those calves who had low lying time on day 2? Thought at first it was the calf that died, but that doesn't seem to be the case as I filtered him out. Then all seeded to behave similarly on day 3(only like 12h of data represented). Individual vaiation, pain, sensor placement/position, loose calves?
 
 
 #box plots for days 1 and 2 (24, and 48hrs post banding)
