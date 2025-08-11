@@ -1,0 +1,845 @@
+---
+title: "Lidoband 2025 Analysis 7.9.2025"
+author: "EP"
+date: "`r Sys.Date()`"
+output: html_document
+format:
+  html:
+    toc: true 
+    toc-float: true 
+    toc-location: left
+---
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(emmeans)
+library(lme4)
+library(lmerTest)
+library(nlme)
+library(car)
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+Lidoenroll <- read_csv("Lidoband Enrollment.csv")
+
+Lidoenroll <- Lidoenroll |> 
+  filter(`Study ID` !=32)
+```
+
+## Enrollment Description
+
+This describes calves enrolled in the Lidoband 2025 study.
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+n_group <-
+  Lidoenroll |>
+  group_by(TRT) |>
+  summarize (Count = n())
+
+n_group
+
+trtbwt <-
+Lidoenroll |>
+  group_by(TRT) |>
+  summarize (mean = mean(Bweight, na.rm = TRUE), 
+             sd = sd(Bweight, na.rm = TRUE))
+
+print(trtbwt)
+
+trtstp <-
+Lidoenroll |>
+  group_by(TRT) |>
+  summarize (mean = mean(TP, na.rm = TRUE), 
+             sd = sd(TP, na.rm = TRUE))
+
+print(trtstp)
+```
+
+```{r}
+
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+LidoFOO <- read_csv("Lidoband 2025 FOO.csv")
+
+LidoFOO <- LidoFOO |> 
+  filter(`Study ID` !=32)
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+FOO <-
+  LidoFOO |>
+  group_by(TRT, FOO) |>
+  summarize(Count = n())
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+LidoAge <- read_csv("Lidoband 2025 Age.csv")
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+library(dplyr)
+library(lubridate)
+
+Age <-
+  LidoAge |>
+  group_by(TRT, Age) |>
+  summarize(Count = n())
+
+Age
+
+LidoAge <- LidoAge |>
+  mutate(
+    Age_hms = hm(Age),                  
+    Age_minutes = period_to_seconds(Age_hms) / 60 
+  )
+
+Age <- LidoAge |>
+  group_by(TRT) |>
+  summarize(
+    mean_age_min = mean(Age_minutes, na.rm = TRUE),
+    sd_age_min = sd(Age_minutes, na.rm = TRUE)
+  ) |>
+  mutate(
+    mean_age = sprintf("%02d:%02d", floor(mean_age_min / 60), round(mean_age_min %% 60)),
+    sd_age = sprintf("%02d:%02d", floor(sd_age_min / 60), round(sd_age_min %% 60))
+  )
+
+Age
+```
+
+```{r}
+library(readr)
+library(dplyr)
+
+LidoMeans <- read_csv("Lidoband 2025 Means.csv")
+
+LidoMeans <- LidoMeans |> 
+  filter(`Calf ID` != 432051)
+
+LidoMeans_Summary<- 
+  LidoMeans |> 
+  group_by(TRT) |>
+  summarise(
+    mean_age = mean(`AgeatEnroll`, na.rm = TRUE),
+    sd_age = sd(`AgeatEnroll`, na.rm = TRUE),
+    mean_TP = mean(TP, na.rm = TRUE),
+    sd_TP = sd(TP, na.rm = TRUE),
+    mean_Bweight = mean(Bweight, na.rm = TRUE),
+    sd_Bweight = sd(Bweight, na.rm = TRUE),
+    mean_BWKg = mean(BWKg, na.rm = TRUE),
+    sd_BWKg = sd(BWKg, na.rm = TRUE),
+    n = n()
+  )
+```
+
+```{r}
+
+anova_age <- aov(AgeatEnroll ~ TRT, data = LidoMeans)
+summary(anova_age)
+
+anova_tp <- aov(TP ~ TRT, data = LidoMeans)
+summary(anova_tp)
+
+anova_bw <- aov(Bweight ~ TRT, data = LidoMeans)
+summary(anova_bw)
+
+anova_bwkg <- aov(BWKg ~ TRT, data = LidoMeans)
+summary(anova_bwkg)
+```
+
+## Scrotal Circumference
+
+This describes the scrotal circumferences in calves for each of the three treatments from day 0 to day 3.
+
+-   SC Summary: groups by both TRT and day, calculates mean and SD of SCAV, and removes grouping
+
+-   SC Overall: overall average scrotal circumference average per treatment group, standard deviation across all days combines
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+library(tidyverse)
+library(readr)
+library(dplyr)
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+  
+SC <- read.csv("Lidoband 2025 SC.csv")
+
+SC <- SC |>
+  filter (Study.ID!= 32)
+
+BWKey <- read.csv("Lidoband 2025 BWKg.csv")
+
+BWKey <- BWKey |>
+  filter (Calf.ID!= 432051)
+
+SCBW <- merge(SC, BWKey, by = "Calf.ID")
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+SC_Summary <-
+  SC |>
+  group_by(TRT, Day) |>
+  summarize(
+    mean_SC = mean(SCAV, na.rm = TRUE),
+    sd_SC   = sd(SCAV, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+print(SC_Summary)
+
+SC_Overall <-
+  SC |>
+  group_by(TRT) |>
+  summarize(
+    mean_SC = mean(SCAV, na.rm = TRUE),
+    sd_SC   = sd(SCAV, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+```{r}
+anova_result <- aov(SCAV ~ TRT, data = SC)
+summary(anova_result)
+emmeans(anova_result, ~ TRT)
+```
+
+```{r}
+anova_result <- aov(SCAV ~ TRT * as.factor(Day), data = SC)
+summary(anova_result)
+emmeans(anova_result, ~ TRT | Day)
+emmeans (anova_result, ~ Day)
+emmeans (anova_result, ~ TRT)
+```
+
+```{r}
+ggplot(SC, aes(x=SCAV))+
+  geom_histogram()
+```
+
+```{r}
+
+ggplot(SC, aes(x = factor(Day), y = SCAV)) +
+  geom_boxplot() +
+  geom_jitter() +
+  labs(
+    title = "Scrotal Circumference Across Days",
+    x = "Day",
+    y = "SCAV (Scrotal Circumference)"
+  ) +
+  theme_classic()
+```
+
+```{r}
+
+SC |> 
+  filter(!is.na(SCAV)) |> 
+ggplot(aes(x = factor(Day), y = SCAV, color = TRT)) +
+  geom_boxplot(position = position_dodge(0.8)) +
+  geom_jitter() +
+  labs(
+    title = "Scrotal Circumference by Day and Treatment",
+    x = "Day",
+    y = "SCAV"
+  ) +
+  theme_classic()
+```
+
+```{r}
+
+SC$TRT <- relevel(factor(SC$TRT), ref = "BO")
+
+lm_Day <- lm(SCAV ~ Day, data=SC)
+summary(lm_Day)
+
+lm_TRT <- lm(SCAV ~ TRT, data=SC)
+summary(lm_TRT)
+
+lm_BLSCAV <- lm(SCAV ~ BLSCAV, data=SC)
+summary(lm_BLSCAV)
+
+Day0 <- SC |>
+  filter(Day==0)
+
+lm_BLTRT <- lm(BLSCAV ~ TRT, data=SC)
+summary(lm_BLTRT)
+
+lm_SCBW <- lm(BLSCAV ~ BWKg, data=SCBW)
+summary(lm_SCBW)
+```
+
+```{r}
+
+SC$Day <- factor(SC$Day, levels = unique(SC$Day))
+SC$TimeNum <- as.numeric(SC$Day)
+
+mod_base <- lme(
+  fixed=SCAV ~ TRT*Day + BLSCAV,
+  random = ~ 1 | Calf.ID,
+  data = SC
+)
+summary(mod_base)
+car::Anova(mod_base, type=3)
+
+mod_ar1 <- lme( 
+  fixed=SCAV ~ TRT*Day + BLSCAV,
+  random = ~ 1 | Calf.ID,
+  correlation = corAR1(form= ~ TimeNum | Calf.ID),
+  data=SC
+  )
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+#model will not converge with BLSCAV
+#mod_rs <- lme(
+  #fixed=SCAV ~ TRT*Day + BLSCAV,
+  #random = ~ TimeNum | Calf.ID,
+  #data=SC
+#)
+#summary(mod_rs)
+#car::Anova(mod_rs, type=3)
+
+plot (mod_base)
+plot (mod_ar1)
+
+anova(mod_base, mod_ar1)
+```
+
+```{r}
+
+SC$Day <- factor(SC$Day, levels = unique(SC$Day))
+SC$TimeNum <- as.numeric(SC$Day)
+
+mod_ar1 <- lme( 
+  fixed=SCAV ~ TRT*Day + BLSCAV,
+  random = ~ 1 | Calf.ID,
+  correlation = corAR1(form= ~ TimeNum | Calf.ID),
+  data=SC
+  )
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emmeans(mod_ar1, ~ Day, adjust="tukey")
+
+emm <- emmeans(mod_ar1, ~ TRT*Day)
+emmeans(mod_ar1, ~ TRT*Day)
+summary(emm)
+pairs(emm, by = "Day")
+pairs(emm, by = "TRT")
+
+emm_df <- as.data.frame(emm)
+
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) + 
+  geom_line(size = 1)+
+  scale_color_manual(values=custom_colors)+
+  geom_point(size = 1)+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width =0.2) +
+  labs(
+    x = "Day",
+    y = "Averge Scrotal Circumference (cm)"
+  ) +
+  theme_classic() +
+  scale_y_continuous(limits = c(10.5,13), breaks = seq(10.5,13, by = 0.5))
+```
+
+```{r}
+
+SCPost <- SC |>
+  filter(Day !=0)
+
+SCPost$Day <- factor(SCPost$Day, levels = unique(SCPost$Day))
+SCPost$TimeNum <- as.numeric(SCPost$Day)
+
+mod_ar1 <- lme( 
+  fixed=SCAV ~ TRT*Day + BLSCAV,
+  random = ~ 1 | Calf.ID,
+  correlation = corAR1(form= ~ TimeNum | Calf.ID),
+  data=SCPost
+  )
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT*Day)
+emmeans(mod_ar1, ~ TRT*Day)
+summary(emm)
+pairs(emm, by = "Day")
+pairs(emm, by = "TRT")
+```
+
+## Health Score
+
+This will describe the health scores of calves across treatment groups and days.
+
+```{r}
+#| include: false
+#| warning: false
+#| echo: false
+
+library(epiDisplay)
+library(knitr)
+library(pROC)
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(gmodels)
+library(ggbeeswarm)
+library(dplyr)
+library(ggpubr)
+library(psych)
+library(lme4)
+library(Matrix)
+library(lmerTest)
+library(irr)
+library(lmerTest)
+library(emmeans)
+library(doBy)       
+library(gmodels)    
+library(car)           
+library(cowplot)       
+library(gridGraphics)  
+library(multcomp)
+library(hms)
+library(gt)
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+LidoHS <- read.csv("Lidoband 2025 HS.csv")
+Key <- read.csv("Lidoband 2025 Key.csv")
+
+LidoHS <- LidoHS |> 
+  filter(`CalfID` !=432051)
+
+HSTRT <-
+  merge(LidoHS, Key, by="CalfID")
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+library(tidyverse)
+library(dplyr)
+
+HSFull <-
+  HSTRT |> 
+    dplyr::select(CalfID, Calf.Age, TRT.y, BodyTemp, Appetite, Attitude, Nose, Eye, Ear, Cough, Temperature, Fecal, Navel, Joint) |> 
+    mutate(
+      TRS = Nose + Eye + Ear + Cough + Temperature,
+      THS = Appetite + Attitude + Nose + Eye + Ear + Cough + Temperature + Fecal + Navel + Joint, 
+      BRD = if_else(TRS >= 4, 1, 0),
+      Refuse = if_else(Appetite >= 2, 1, 0),
+      Scour = if_else(Fecal >= 2, 1, 0),
+      Fever = if_else(Temperature >= 2, 1, 0), 
+      Sick = if_else(THS >= 4, 1, 0), 
+      DiarSS = case_when(
+        Fecal <= 1 ~ "Normal", 
+        Fecal == 2 ~ "Mild",
+        Fecal == 3 ~ "Severe"
+      )
+    )
+
+print(HSFull)
+```
+
+```{r}
+
+HSFull |> 
+  filter(!is.na(Scour)) |> 
+ggplot(aes(x = Scour, fill = TRT.y)) +
+  geom_histogram(position = "identity", binwidth = 1, alpha = 0.5, color = "black") +
+  labs(
+    title = "Scour Score Distribution by Treatment",
+    x = "Scour Score",
+    y = "Count",
+    fill = "Treatment Group"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+
+anova_result <- aov(Sick ~ TRT.y, data = HSFull)
+summary(anova_result)
+```
+
+```{r}
+
+anova_result <- aov(Scour ~ TRT.y, data = HSFull)
+summary(anova_result)
+```
+
+```{r}
+
+anova_result <- aov(Fever ~ TRT.y, data = HSFull)
+summary(anova_result)
+```
+
+```{r}
+library(dplyr)
+
+HSFull_Summary <- HSFull |>
+  group_by(Calf.Age, TRT.y) |>
+  summarise(
+    Total_Scour = sum(Scour, na.rm = TRUE),
+    Total_Fever = sum(Fever, na.rm = TRUE),
+    Total_Sick = sum(Sick, na.rm = TRUE),
+    n = n()
+  )
+```
+
+```{r}
+HSFull_Long <- HSFull_Summary |>
+  pivot_longer(
+    cols = starts_with("Total_"),
+    names_to = "Condition",
+    values_to = "Count"
+  )
+```
+
+```{r}
+ggplot(HSFull_Long, aes(x = factor(Calf.Age), y = Count, fill = TRT.y)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~ Condition, scales = "free_y") +
+  theme_minimal() +
+  labs(
+    title = "Scour, Fever, and Sick Scores by Calf Age and Treatment",
+    x = "Calf Age (Days)",
+    y = "Total Number of Calves",
+    fill = "Treatment Group"
+  )
+```
+
+```{r}
+anova_scour <- aov(Total_Scour ~ TRT.y * factor(Calf.Age), data = HSFull_Summary)
+summary(anova_scour)
+```
+
+```{r}
+anova_fever <- aov(Total_Fever ~ TRT.y * factor(Calf.Age), data = HSFull_Summary)
+summary(anova_fever)
+
+anova_sick <- aov(Total_Sick ~ TRT.y * factor(Calf.Age), data = HSFull_Summary)
+summary(anova_sick)
+```
+
+### Health Score Data Checks
+
+```{r}
+#| echo: false
+#| warning: false
+
+HSMerge <- merge(HSFull, Lidoenroll, by = "Calf.ID", all.x = TRUE)
+```
+
+```{r}
+#| echo: false
+#| warning: false
+
+HSMerge |> 
+  count(Calf.ID)
+
+HSMerge |> 
+  count(TRT) 
+
+HSMerge |> 
+  group_by(Calf.ID, TRT) |> 
+  count()
+
+print(HSMerge)
+```
+
+## Ethogram
+
+This will describe the behaviors of calves by treatment group one-minute post castration banding.
+
+```{r}
+#| include: false
+#| warning: false
+#| echo: false
+
+library(epiDisplay)
+library(knitr)
+library(pROC)
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(gmodels)
+library(ggbeeswarm)
+library(dplyr)
+library(ggpubr)
+library(psych)
+library(lme4)
+library(Matrix)
+library(lmerTest)
+library(irr)
+library(lmerTest)
+library(emmeans)
+library(doBy)       
+library(gmodels)    
+library(car)           
+library(cowplot)       
+library(gridGraphics)  
+library(multcomp)
+library(hms)
+library(gt)
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+LidoEthoFull <- read.csv("Lidoband 2025 EthoFull.csv") |>
+  drop_na()
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+library(dplyr)
+
+LidoEthoSummary <-
+  LidoEthoFull |>
+  group_by(TRT) |>
+  summarize(
+    mean_vocalize = mean(Vocalize, na.rm = TRUE),
+    sd_vocalize   = sd(Vocalize, na.rm = TRUE),
+    mean_kick     = mean(Kick, na.rm = TRUE),
+    sd_kick       = sd(Kick, na.rm = TRUE),
+    mean_struggle = mean(Struggle, na.rm = TRUE),
+    sd_struggle   = sd(Struggle, na.rm = TRUE),
+    mean_tail     = mean(Tail.flick, na.rm = TRUE),
+    sd_tail       = sd(Tail.flick, na.rm = TRUE),
+    mean_down     = mean(Layed.Down, na.rm = TRUE),
+    sd_down       = sd(Layed.Down, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+```{r}
+#| include: false 
+#| warning: false 
+#| echo: false 
+
+ggplot(LidoEthoFull, aes(x = TRT, y = Struggle)) +
+  geom_boxplot()
+```
+
+```{r}
+
+ggplot(LidoEthoFull, aes(x = TRT, y = Struggle, fill = TRT)) +
+  geom_boxplot() +
+  labs(
+    title = "Struggle Behavior by Treatment Group",
+    x = "Treatment Group",
+    y = "Struggle Score"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(LidoEthoFull, aes(x=Struggle))+
+  geom_histogram()
+```
+
+```{r}
+
+LidoEthoFull |>
+  mutate(TRT=factor(TRT, levels=c("BO", "B+N", "LIDO"))) |>
+  ggplot(aes(x = TRT, y = Tail.flick, fill = TRT)) +
+  geom_boxplot() + 
+  geom_jitter() +
+  scale_fill_manual(
+    values = c(
+      "BO" = "red4",
+      "B+N" = "goldenrod2",
+      "LIDO" = "wheat"
+    )
+  )+
+  labs(
+    x = NULL,
+    y = "Number of Tail Flicks"
+  ) +
+  theme_classic() +
+  scale_y_continuous(limits = c(0,14), breaks = seq(0,14, by = 2.0))
+```
+
+```{r}
+ggplot(LidoEthoFull, aes(x=Tail.flick))+
+  geom_histogram()
+```
+
+```{r}
+
+LidoEthoFull |>
+  mutate(TRT=factor(TRT, levels=c("BO", "B+N", "LIDO"))) |>
+  ggplot(aes(x = TRT, y = Kick, fill = TRT)) +
+  geom_boxplot() + 
+  geom_jitter() +
+    scale_fill_manual(
+    values = c(
+      "BO" = "red4",
+      "B+N" = "goldenrod2",
+      "LIDO" = "wheat"
+    )
+  )+
+  labs(
+    x = NULL,
+    y = "Number of Kicks/Stomps"
+  ) +
+  theme_classic() +
+  scale_y_continuous(limits = c(0,16), breaks = seq(0,16, by = 2.0))
+```
+
+```{r}
+ggplot(LidoEthoFull, aes(x=Kick))+
+  geom_histogram()
+```
+
+```{r}
+
+ggplot(LidoEthoFull, aes(x = TRT, y = Vocalize, fill = TRT)) +
+  geom_boxplot() +
+  labs(
+    title = "Vocalize Behavior by Treatment Group",
+    x = "Treatment Group",
+    y = "Vocalize Score"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+
+ggplot(LidoEthoFull, aes(x = TRT, y = Layed.Down, fill = TRT)) +
+  geom_boxplot() +
+  labs(
+    title = "Lying Down Behavior by Treatment Group",
+    x = "Treatment Group",
+    y = "Down Score"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+anova_result <- aov(Struggle ~ TRT, data = LidoEthoFull)
+summary(anova_result)
+```
+
+```{r}
+anova_result <- aov(Vocalize ~ TRT, data = LidoEthoFull)
+summary(anova_result)
+```
+
+```{r}
+anova_result <- aov(Kick ~ TRT, data = LidoEthoFull)
+summary(anova_result)
+```
+
+```{r}
+anova_result <- aov(Tail.flick ~ TRT, data = LidoEthoFull)
+summary(anova_result)
+```
+
+```{r}
+anova_result <- aov(Layed.Down ~ TRT, data = LidoEtho)
+summary(anova_result)
+```
+
+```{r}
+
+LidoEthoFull$TRT <- relevel(factor(LidoEthoFull$TRT), ref = "BO")
+
+lm_TF <- lm(Tail.flick ~ TRT, data=LidoEthoFull)
+summary(lm_TF)
+
+lm_TFAge <- lm(Tail.flick ~ AgeatEnroll, data=LidoEthoFull)
+summary(lm_TFAge)
+
+lm_TFEG <- lm(Tail.flick ~ Egroup, data=LidoEthoFull)
+summary(lm_TFEG)
+
+lm_TFBW <- lm(Tail.flick ~ BWKg, data=LidoEthoFull)
+summary(lm_TFBW)
+
+lm_TF <- lm(Tail.flick ~ TRT + AgeatEnroll, data=LidoEthoFull)
+summary(lm_TF, adjust="tukey")
+
+plot(lm_TF)
+emmeans(lm_TF, ~ TRT)
+x <- emmeans(lm_TF, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+```
+
+```{r}
+
+LidoEthoFull$TRT <- relevel(factor(LidoEthoFull$TRT), ref = "BO")
+
+lm_Kick <- lm(Kick ~ TRT, data=LidoEthoFull)
+summary(lm_Kick)
+
+lm_KickAge <- lm(Kick ~ AgeatEnroll, data=LidoEthoFull)
+summary(lm_KickAge)
+
+lm_KickEG <- lm(Kick ~ Egroup, data=LidoEthoFull)
+summary(lm_KickEG)
+
+lm_KickBW <- lm(Kick ~ BWKg, data=LidoEthoFull)
+summary(lm_KickBW)
+
+lm_Kick <- lm(Kick ~ TRT + BWKg, data=LidoEthoFull)
+summary(lm_Kick, adjust="tukey")
+
+plot(lm_Kick)
+emmeans(lm_Kick, ~ TRT)
+x <- emmeans(lm_Kick, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+```
