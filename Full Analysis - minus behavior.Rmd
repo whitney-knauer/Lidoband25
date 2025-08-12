@@ -68,7 +68,7 @@ scfull <- scfull |>
   rename(TRT = TRT.x)
 
 #health score spreadsheet
-hs <- read.csv("data/hs.csv")
+hs <- read.csv("data/CHSdata_2025_08_11_08_39.csv")
   hs$CalfID = as.numeric(hs$CalfID)
 
 full<-
@@ -91,6 +91,8 @@ hs |>
 
 hsfull <-  
   merge(full, enroll, by = "CalfID")
+
+anti_join(full, enroll, by = "CalfID")
 
 
 #ethogram
@@ -329,13 +331,13 @@ ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) +
 
 ## Health Score
 
-This will describe the health scores of calves across treatment groups and days. Need to do look at Study ID: 1 3 53 57 62 63 for data discrepancies. Will figure those out once all the data is pulled in.
+This will describe the health scores of calves across treatment groups and days. Need to do look at Study ID: 1 46, 53, 57, 62, 63, 82, 94 for data discrepancies. Will figure those out once all the data is pulled in.
 
 ```{r}
 #| echo: false
 #| warning: false
 
-healthfull |> 
+hsfull |> 
   count(Calf.Age) #this will count how many obs per day 
 
 hsfull |> 
@@ -349,6 +351,12 @@ hsfull |>
   group_by(`Study ID`) |> 
   summarize(
     mean = mean(Calf.Age)
+  )
+
+hsfull |> 
+  group_by(`CalfID`) |> 
+  summarize(
+    sum = sum(Calf.Age)
   )
 ```
 
@@ -402,13 +410,13 @@ hsfull |>
 
 table(hsfull$TRT, hsfull$Scour)
 #         0  1
-#   BO   77 11 = 11/88=12.5
-#   B+N  68 21 = 21/89=23.6
-#   LIDO 78 12 = 12/90=13.3
+#   BO   122 1 = 1/123
+#   B+N  122 1 = 1/123
+#   LIDO 113 9 = 9/122
 
 #worth evaluating with models? Only n=6 calves were ID'd with abnormal FS
-CrossTable(hsfull$Scour,  hsfull$Calf.Age, fisher=TRUE) #more likely to have loose fecal score on D1 and D2 (likely due to colostrum feeding)
-CrossTable(hsfull$Scour,  hsfull$TRT, fisher = TRUE) #no
+CrossTable(hsfull$Scour,  hsfull$Calf.Age, fisher=TRUE) 
+CrossTable(hsfull$Scour,  hsfull$TRT, fisher = TRUE) #yes, in lidoband group
 
 ```
 
@@ -422,14 +430,14 @@ CrossTable(hsfull$Scour,  hsfull$TRT, fisher = TRUE) #no
 
 table(hsfull$TRT, hsfull$Sick)
 #         0  1
-#   BO   77 11 = 11/88=12.5
-#   B+N  68 21 = 21/89=23.6
-#   LIDO 78 12 = 12/90=13.3
+#   BO   100 17 = 17/117 (14.5)
+#   B+N  97 26 = 26/123  (21.1)
+#   LIDO 88 34 = 34/122  (27.8)
 
 #more calves in Lido.....were they more likely to have fever? 
-CrossTable(hsfull$Sick,  hsfull$Calf.Age, fisher=TRUE) #fewer on d4 vs. 1 - 3 which is likly a function of when during day they were evaluated? 
-CrossTable(hsfull$Sick,  hsfull$TRT, fisher = TRUE) #no
-CrossTable(hsfull$Sick, hsfull$Egroup, fisher = TRUE) #no, numerically more in the second iteration which makes sense bc it was ungodly hot. 
+CrossTable(hsfull$Sick,  hsfull$Calf.Age, fisher=TRUE) #yes, effect of day
+CrossTable(hsfull$Sick,  hsfull$TRT, fisher = TRUE) #yes
+CrossTable(hsfull$Sick, hsfull$Egroup, fisher = TRUE) #no
 ```
 
 ### Fever
@@ -441,10 +449,10 @@ CrossTable(hsfull$Sick, hsfull$Egroup, fisher = TRUE) #no, numerically more in t
 #What proportion of calves fever (RT> 103.5) in each group?
 
 table(hsfull$TRT, hsfull$Fever)
-#         0  1
-#   BO   77 11 = 11/88=12.5
-#   B+N  68 21 = 21/89=23.6
-#   LIDO 78 12 = 12/90=13.3
+#          0  1
+#   BO   112 10 = 10/122  (8.2)
+#   B+N  116 8 = 8/124    (6.4)
+#   LIDO 97 24 = 24/121   (19.8)
 
 #more calves in Lido.....were they more likely to have fever? 
 CrossTable(hsfull$Fever,  hsfull$Calf.Age, fisher=TRUE) #more on day 2 and 3  
