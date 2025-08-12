@@ -94,6 +94,7 @@ hsfull <-
 
 anti_join(full, enroll, by = "CalfID")
 
+write.csv(x=hsfull, file = "data/hsfullchecks.csv")
 
 #ethogram
 etho <- read.csv("data/ethogram.csv")
