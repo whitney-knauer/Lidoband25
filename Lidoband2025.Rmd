@@ -324,6 +324,395 @@ ggplot(step_hs, aes(x=hour, y=m_step, color = TRT))+
 
 ```
 
+### Remove Outliers 
+
+(n=10 calves with wonky lying times on d1 and d2 \> 2SD away from the mean)
+
+```{r}
+#| warning: false
+#| echo: false
+
+hourrm <-
+  hour |> 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83)))
+
+#from 5951 to 5569 (6.8% of data removed 6/93 calves)
+
+lt_hs <- hourrm |> 
+  filter(hour<= 60) |> 
+  group_by (TRT, hour) |> 
+  summarize (m_lt = mean (LyingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lt_hs, aes(x=hour, y=m_lt, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Time by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Lying Time")+ 
+         theme_minimal()
+
+
+
+
+st_hs <- hourrm |> 
+  filter(hour<= 60) |> 
+  group_by (TRT, hour) |> 
+  summarize (m_st = mean (StandingTime, na.rm = TRUE, .groups = "drop"))
+
+ggplot(st_hs, aes(x=hour, y=m_st, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Standing Time by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Standing Time")+ 
+         theme_minimal()
+
+
+
+lb_hs <- hourrm |> 
+  filter(hour<= 60) |> 
+  group_by (TRT, hour) |> 
+  summarize (m_lb = mean (LyingBouts, na.rm = TRUE, .groups = "drop"))
+
+ggplot(lb_hs, aes(x=hour, y=m_lb, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Lying Bouts by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Lying Bouts")+ 
+         theme_minimal()
+
+
+step_hs <- hourrm |> 
+  filter(hour<= 60) |> 
+  group_by (TRT, hour) |> 
+  summarize (m_step = mean (Steps, na.rm = TRUE, .groups = "drop"))
+
+ggplot(step_hs, aes(x=hour, y=m_step, color = TRT))+
+         geom_line (size = 1)+
+         geom_point()+
+         labs (
+           title = "Average Steps by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Steps")+ 
+         theme_minimal()
+
+
+
+```
+
+### Models - outliers removed
+
+#### Lying Time
+
+```{r}
+#| warning: false
+#| echo: false
+
+hourrm <-
+  hour |> 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83))) %>% 
+  filter(hour<61)
+
+
+hourrm$hour <- factor(hourrm$hour, levels = unique(hourrm$hour))  # if already time-ordered
+hourrm$TimeNum <- as.numeric(hourrm$hour)
+
+
+mod_base <- lme(
+  fixed = LyingTime ~ hour * TRT,
+  random = ~ 1 | Cow,
+  data = hourrm
+)
+
+mod_ar1 <- lme(
+  fixed = LyingTime ~ hour * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+
+mod_rs <- lme(
+  fixed = LyingTime ~ hour * TRT,
+  random = ~ TimeNum | Cow,
+  data = hourrm
+)
+
+
+plot (mod_base)
+plot(mod_ar1)
+plot(mod_rs)
+
+anova(mod_base, mod_ar1, mod_rs)
+
+#AR1 is the best model based on fit, but it's not great
+
+
+
+mod_ar1 <- lme(
+  fixed = LyingTime ~ hour * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT * hour)
+summary(emm)
+pairs(emm, by = "TRT")
+
+emm_df <- as.data.frame(emm)
+
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values=custom_colors)+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  labs(
+    x = "Hour from Banding",
+    y = "Estimated Marginal Means of Lying Time") +
+  theme_classic()+
+  scale_y_continuous(limits = c(0, 70), breaks = seq(0, 70, by = 10))+
+  scale_x_discrete(breaks = seq(0, 60, by = 4))
+
+```
+
+#### Standing Time
+
+```{r}
+#| warning: false
+#| echo: false
+
+hourrm <-
+  hour |> 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83))) %>% 
+  filter(hour<61)
+
+
+hourrm$hour <- factor(hourrm$hour, levels = unique(hourrm$hour))  # if already time-ordered
+hourrm$TimeNum <- as.numeric(hourrm$hour)
+
+
+mod_base <- lme(
+  fixed = StandingTime ~ hour * TRT,
+  random = ~ 1 | Cow,
+  data = hourrm
+)
+
+mod_ar1 <- lme(
+  fixed = StandingTime ~ hour * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+
+mod_rs <- lme(
+  fixed = StandingTime ~ hour * TRT,
+  random = ~ TimeNum | Cow,
+  data = hourrm
+)
+
+
+plot (mod_base)
+plot(mod_ar1)
+plot(mod_rs)
+
+anova(mod_base, mod_ar1, mod_rs)
+
+#AR1 is the best model based on fit, but it's not great
+
+
+
+mod_ar1 <- lme(
+  fixed = StandingTime ~ hour * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT * hour)
+summary(emm)
+pairs(emm, by = "TRT")
+
+emm_df <- as.data.frame(emm)
+
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values=custom_colors)+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  labs(
+    x = "Hour from Banding",
+    y = "Estimated Marginal Means of Standing Time") +
+  theme_classic()+
+  scale_y_continuous(limits = c(0, 30), breaks = seq(0, 30, by =5))+
+  scale_x_discrete(breaks = seq(0, 60, by = 4))
+
+```
+
+#### Lying Bouts
+
+```{r}
+#| warning: false
+#| echo: false
+
+hourrm <-
+  hour |> 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83))) %>% 
+  filter(hour<61)
+
+
+hourrm$hour <- factor(hourrm$hour, levels = unique(hourrm$hour))  # if already time-ordered
+hourrm$TimeNum <- as.numeric(hourrm$hour)
+
+
+mod_base <- lme(
+  fixed = LyingBouts ~ hour * TRT,
+  random = ~ 1 | Cow,
+  data = hourrm
+)
+
+mod_ar1 <- lme(
+  fixed = LyingBouts ~ hour * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+
+mod_rs <- lme(
+  fixed = LyingBouts ~ hour * TRT,
+  random = ~ TimeNum | Cow,
+  data = hourrm
+)
+
+
+plot (mod_base)
+plot(mod_ar1)
+plot(mod_rs)
+
+anova(mod_base, mod_ar1, mod_rs)
+
+#AR1 is the best model based on fit, but it's not great
+
+
+
+mod_ar1 <- lme(
+  fixed = LyingBouts ~ hour * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT * hour)
+summary(emm)
+pairs(emm, by = "TRT")
+
+emm_df <- as.data.frame(emm)
+
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values=custom_colors)+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  labs(
+    x = "Hour from Banding",
+    y = "Estimated Marginal Means of LB") +
+  theme_classic()+
+  scale_y_continuous(limits = c(0, 5), breaks = seq(0, 5, by =1))+
+  scale_x_discrete(breaks = seq(0, 60, by = 4))
+
+```
+
+#### Steps
+
+```{r}
+#| warning: false
+#| echo: false
+
+hourrm <-
+  hour |> 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83))) %>% 
+  filter(hour<61)
+
+
+hourrm$hour <- factor(hourrm$hour, levels = unique(hourrm$hour))  # if already time-ordered
+hourrm$TimeNum <- as.numeric(hourrm$hour)
+
+
+mod_base <- lme(
+  fixed = Steps ~ hour * TRT,
+  random = ~ 1 | Cow,
+  data = hourrm
+)
+
+mod_ar1 <- lme(
+  fixed = Steps ~ hour * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+
+mod_rs <- lme(
+  fixed = Steps ~ hour * TRT,
+  random = ~ TimeNum | Cow,
+  data = hourrm
+)
+
+
+plot (mod_base)
+plot(mod_ar1)
+plot(mod_rs)
+
+anova(mod_base, mod_ar1, mod_rs)
+
+#AR1 is the best model based on fit, but it's not great
+
+
+
+mod_ar1 <- lme(
+  fixed = Steps ~ hour * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT * hour)
+emmeans(mod_ar1, ~ TRT*hour)
+emmeans(mod_ar1, ~ TRT)
+summary(emm)
+pairs(emm, by = "TRT")
+pairs(emm, by = "hour")
+
+emm_df <- as.data.frame(emm)
+
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values=custom_colors)+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
+  labs(
+    x = "Hour from Banding",
+    y = "Estimated Marginal Means of Steps") +
+  theme_classic()+
+  scale_y_continuous(limits = c(0, 50), breaks = seq(0, 50, by =5))+
+  scale_x_discrete(breaks = seq(0, 60, by = 4))
+
+```
+
 ## Four Hour Level
 
 ### Simple Description
@@ -734,13 +1123,19 @@ ggplot(dayrm, aes(x=day, y=LyingTime, color = factor(Cow), group = Cow))+
          geom_point()+ 
          theme_minimal()
 
+dayrm2<- 
+  day %>% 
+filter(! (Cow %in% c(11, 20, 54, 57, 64, 83)))
 
-
+ggplot(dayrm2, aes(x=day, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
+         geom_point()+ 
+         theme_minimal()
 
 
 #box plots for days 1 and 2 (24, and 48hrs post banding)
 
-day2only <- day |> 
+day2only <- dayrm2 |> 
   filter (day < 3)
 
 #standing time
@@ -754,6 +1149,16 @@ day2only |>
            x = "", 
            y = "Standing Time (h)")
 
+day2only %>% 
+ggplot(aes(x=day, y=StandingTime, color = TRT))+
+         geom_line (size = 1)+
+         labs (
+           title = "Average Standing Time by Hour and Treatment", 
+           x = "Hour", 
+           y = "Average Standing Time")+ 
+         theme_minimal()
+
+
 #lying time
 day2only |> 
   ggplot(mapping = aes(x = TRT, y = LyingTime, color=TRT)) +
@@ -764,7 +1169,16 @@ day2only |>
   labs( title = "Average Lying Time (h) by day and Treatment", 
            x = "", 
            y = "Lying Time (h)")
-    
+ 
+
+day2only %>% 
+ggplot(aes(x=day, y=LyingTime, color = TRT))+
+         geom_line (size = 1)+
+         labs (
+           title = "Average Lying Time by day and Treatment", 
+           x = "", 
+           y = "Average Lying Time")+ 
+         theme_minimal()   
 
 #lying bouts
 day2only |> 
@@ -777,6 +1191,17 @@ day2only |>
            x = "", 
            y = "Lying Bouts (n)")
 
+day2only %>% 
+ggplot(aes(x=day, y=LyingBouts, color = TRT))+
+         geom_line (size = 1)+
+         labs (
+           title = "Average LB by day and Treatment", 
+           x = "", 
+           y = "Average LB")+ 
+         theme_minimal()   
+
+
+
 #steps
 day2only |> 
   ggplot(mapping = aes(x = TRT, y = Steps, color=TRT)) +
@@ -788,7 +1213,14 @@ day2only |>
            x = "", 
            y = "Steps (n)")
 
-
+day2only %>% 
+ggplot(aes(x=day, y=Steps, color = TRT))+
+         geom_line (size = 1)+
+         labs (
+           title = "Average Steps by day and Treatment", 
+           x = "", 
+           y = "Average Steps")+ 
+         theme_minimal()   
 
 ```
 
@@ -798,7 +1230,8 @@ day2only |>
 
 ```{r}
 fourmodel <- four |> 
-  filter(four<16)
+  filter(four<16) %>% 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83)))
 
 fourmodel$four <- factor(fourmodel$four, levels = unique(fourmodel$four))  # if already time-ordered
 fourmodel$TimeNum <- as.numeric(fourmodel$four)
@@ -869,7 +1302,8 @@ ggplot(emm_df, aes(x = four, y = emmean, color = TRT, group = TRT)) +
 
 ```{r}
 fourmodel <- four |> 
-  filter(four<16)
+  filter(four<16) %>% 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83)))
 
 fourmodel$four <- factor(fourmodel$four, levels = unique(fourmodel$four))  # if already time-ordered
 fourmodel$TimeNum <- as.numeric(fourmodel$four)
@@ -942,7 +1376,8 @@ ggplot(emm_df, aes(x = four, y = emmean, color = TRT, group = TRT)) +
 
 ```{r}
 fourmodel <- four |> 
-  filter(four<16)
+  filter(four<16) %>% 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83)))
 
 fourmodel$four <- factor(fourmodel$four, levels = unique(fourmodel$four))  # if already time-ordered
 fourmodel$TimeNum <- as.numeric(fourmodel$four)
@@ -1014,7 +1449,8 @@ ggplot(emm_df, aes(x = four, y = emmean, color = TRT, group = TRT)) +
 
 ```{r}
 fourmodel <- four |> 
-  filter(four<16)
+  filter(four<16) %>% 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83)))
 
 fourmodel$four <- factor(fourmodel$four, levels = unique(fourmodel$four))  # if already time-ordered
 fourmodel$TimeNum <- as.numeric(fourmodel$four)
