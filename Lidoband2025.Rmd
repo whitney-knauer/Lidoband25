@@ -100,7 +100,7 @@ use[, incr := seq_len(.N), by = Cow]
 
 use1 <- 
   use |> 
-  select(Cow, date, time, sday, `Motion Index`, Steps, `Lying Time`, `Lying Bouts`, `Standing Time`, TRT, incr)
+  dplyr::select(Cow, date, time, sday, `Motion Index`, Steps, `Lying Time`, `Lying Bouts`, `Standing Time`, TRT, incr)
 
 use1[, hour := (incr - 1) %/% 4 + 1, by = Cow]
 use1[, day := (incr -1)%/% 96+1, by = Cow]
@@ -162,6 +162,7 @@ four <- use1[, .(
   StandingTime = sum(`Standing Time`)/3600
 ), by = .(Cow, TRT, four, sday)]
 
+write.csv(x = day, file = "data/daydatachecks.csv")
 ```
 
 ## Hour Level
@@ -696,6 +697,18 @@ day |>
    stand = mean (StandingTime)
   )
 
+day |> 
+  group_by(day) |> 
+  summarize (
+   motion = mean (MotionIndex), 
+   steps = mean (Steps), 
+   lying = mean (LyingTime), 
+   sdlie = sd(LyingTime),
+   lb = mean (LyingBouts),
+   stand = mean (StandingTime),
+   standsd = sd(StandingTime)
+  )
+
 ```
 
 ### Plots of Lying Time, Standing Time, Lying Bouts, Steps
@@ -710,6 +723,19 @@ ggplot(day, aes(x=day, y=LyingTime, color = factor(Cow), group = Cow))+
          geom_point()+ 
          theme_minimal()
 #who were those calves who had low lying time on day 2? Thought at first it was the calf that died, but that doesn't seem to be the case as I filtered him out. Then all seeded to behave similarly on day 3(only like 12h of data represented). Individual vaiation, pain, sensor placement/position, loose calves?
+
+#REMOVE THOSE CALVES:
+dayrm <-
+  day |> 
+  filter(! (Cow %in% c(11, 20, 54, 57, 58, 62, 64, 65, 78, 83)))
+
+ggplot(dayrm, aes(x=day, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
+         geom_point()+ 
+         theme_minimal()
+
+
+
 
 
 #box plots for days 1 and 2 (24, and 48hrs post banding)

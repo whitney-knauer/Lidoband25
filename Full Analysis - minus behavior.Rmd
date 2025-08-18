@@ -412,10 +412,10 @@ hsfull |>
 table(hsfull$TRT, hsfull$Scour)
 #         0  1
 #   BO   122 1 = 1/123
-#   B+N  122 1 = 1/123
+#   B+N  122 3 = 3/125
 #   LIDO 113 9 = 9/122
 
-#worth evaluating with models? Only n=6 calves were ID'd with abnormal FS
+#worth evaluating with models? Only n=13 calves were ID'd with abnormal FS
 CrossTable(hsfull$Scour,  hsfull$Calf.Age, fisher=TRUE) 
 CrossTable(hsfull$Scour,  hsfull$TRT, fisher = TRUE) #yes, in lidoband group
 
@@ -458,7 +458,39 @@ table(hsfull$TRT, hsfull$Fever)
 #more calves in Lido.....were they more likely to have fever? 
 CrossTable(hsfull$Fever,  hsfull$Calf.Age, fisher=TRUE) #more on day 2 and 3  
 CrossTable(hsfull$Fever,  hsfull$TRT, fisher = TRUE) #yes, more in Lido?
+tab <- xtabs(~TRT + Fever + Calf.Age, data=hsfull)
+tab
+
 CrossTable(hsfull$Fever, hsfull$Egroup, fisher = TRUE) #yes, more in the second iteration which makes sense bc it was ungodly hot
+CrossTable(hsfull$Fever, hsfull$FOO, fisher = TRUE)#no
+
+
+hsfull$TRT <- factor(hsfull$TRT) 
+hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
+model <- glmer(Fever ~ TRT + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
+
+summary(model)
+emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO"), type = "response"))
+
+fixed_effects <- fixef(model)
+odds_ratios <- exp(fixed_effects)
+cat("Odds Ratios:\n")
+print(odds_ratios)
+
+type3_p_values <- Anova(model, type="III", test="Chisq")
+cat("\nType III p-values:\n")
+print(type3_p_values)
+adjusted_proportions <- odds_ratios / (1 + odds_ratios)
+cat("\nAdjusted Proportions:\n")
+print(adjusted_proportions)
+contrasts <- glht(model, linfct = mcp(TRT = "Tukey"))
+summary(contrasts)
+
+emm <- emmeans(model, ~ TRT)
+contrast_OR <- contrast(emm, method = "pairwise") %>%
+  summary(infer = TRUE, type = "response")
+contrast_OR
+
 ```
 
 ## Ethogram
@@ -492,6 +524,8 @@ LidoEthoSummary
 
 ### Struggle
 
+#### Description and Boxplot
+
 ```{r}
 
 table(ethofull$TRT, ethofull$Struggle)
@@ -503,12 +537,57 @@ ggplot(ethofull, aes(x=Struggle))+
 ggplot(ethofull, aes(x = TRT, y = Struggle, fill = TRT)) +
   geom_boxplot() +
   geom_jitter()+
+   scale_fill_manual(
+    values = c(
+      "BO" = "red4",
+      "B+N" = "goldenrod2",
+      "LIDO" = "wheat"))+
   labs(
     title = "Struggle Behavior by Treatment Group",
     x = "Treatment Group",
     y = "Struggle Score"
   ) +
   theme_classic()
+```
+
+#### Model
+
+```{r}
+ethofull$TRT <- relevel(factor(ethofull$TRT), ref = "BO")
+
+lm_s <- lm(Struggle ~ TRT, data=ethofull)
+summary(lm_s)
+
+lm_sAge <- lm(Struggle ~ AgeatEnroll, data=ethofull)
+summary(lm_sAge)
+
+lm_sEG <- lm(Struggle ~ Egroup, data=ethofull)
+summary(lm_sEG)
+
+lm_sBW <- lm(Struggle ~ BWKg, data=ethofull)
+summary(lm_sBW)
+
+lm_s <- lm(Struggle ~ TRT + Egroup, data=ethofull)
+summary(lm_s, adjust="tukey")
+
+plot(lm_s)
+emmeans(lm_s, ~ TRT)
+x <- emmeans(lm_s, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+
+
+#poisson regression? 
+model <- glm(Struggle ~ TRT, family = poisson(link = "log"), data = ethofull)
+
+# Summary of results
+summary(model)
+
+# Exponentiate coefficients to get rate ratios (incidence rate ratios)
+exp(coef(model))
+confint(model)  # 95% CI
+exp(confint(model)) 
+
 ```
 
 ### Tail Flick
