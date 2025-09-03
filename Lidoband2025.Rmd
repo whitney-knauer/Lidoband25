@@ -324,9 +324,9 @@ ggplot(step_hs, aes(x=hour, y=m_step, color = TRT))+
 
 ```
 
-### Remove Outliers 
+### Remove Outliers
 
-(n=10 calves with wonky lying times on d1 and d2 \> 2SD away from the mean)
+(n=10 calves with wonky lying times on d1 and d2 \> 2SD away from the mean). But some of those seemed legit (no long uninterrupted times when they were standing).
 
 ```{r}
 #| warning: false
@@ -540,6 +540,7 @@ car::Anova(mod_ar1, type=3)
 emm <- emmeans(mod_ar1, ~ TRT * hour)
 summary(emm)
 pairs(emm, by = "TRT")
+pairs(emm, by = "hour")
 
 emm_df <- as.data.frame(emm)
 
@@ -616,6 +617,7 @@ car::Anova(mod_ar1, type=3)
 emm <- emmeans(mod_ar1, ~ TRT * hour)
 summary(emm)
 pairs(emm, by = "TRT")
+pairs (emm, by = "hour")
 
 emm_df <- as.data.frame(emm)
 
@@ -1514,3 +1516,5 @@ ggplot(emm_df, aes(x = four, y = emmean, color = TRT, group = TRT)) +
   ) +
   theme_classic()
 ```
+
+Not sure what to do about increment. I like using the hour increment as it shows WHEN calves are doing stuff and also highlights feeding times (Sat and Sun). Maybe ask Elise what she thinks about how to best analyze and represent this data? Doesn't really look like there is a difference in standing or lying, but there is a differene in LB and Steps (for sure) which is interesting. I think use Hour. Can give daily average if needed? But like the hour level data for its' extra invormation (partiularly around feeding time).

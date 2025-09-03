@@ -120,7 +120,10 @@ This describes enrollment characteristics of calves enrolled in the Lidoband Stu
   group_by(TRT) |>
   summarize (Count = n())
 
-
+enroll |> 
+  summarize (mean = mean(BWKg, na.rm = TRUE), 
+             sd = sd(BWKg, na.rm = TRUE))
+ 
 enroll |>
   group_by(TRT) |>
   summarize (mean = mean(BWKg, na.rm = TRUE), 
@@ -129,6 +132,11 @@ enroll |>
 lmbwt <- lm(BWKg ~ TRT, data=enroll)
 summary(lmbwt, type=3)
 
+
+enroll |> 
+  summarize(mean = mean(TP, na.rm = TRUE), 
+             sd = sd(TP, na.rm = TRUE))
+
 enroll |>
   group_by(TRT) |>
   summarize (mean = mean(TP, na.rm = TRUE), 
@@ -136,6 +144,10 @@ enroll |>
 
 lmtp <- lm(TP ~ TRT, data=enroll)
 summary(lmtp, type=3)
+
+enroll |> 
+  summarize(mean = mean(AgeatEnroll, na.rm = TRUE), 
+             sd = sd(AgeatEnroll, na.rm = TRUE))
 
 
 enroll |>
@@ -146,6 +158,10 @@ enroll |>
 lmtp <- lm(AgeatEnroll ~ TRT, data=enroll)
 summary(lmtp, type=3)
 
+
+enroll |> 
+  group_by (FOO) |> 
+  summarize (count = n())
 
 enroll  |>
   group_by(TRT, FOO) |>
