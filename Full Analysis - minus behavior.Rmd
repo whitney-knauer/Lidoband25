@@ -104,6 +104,19 @@ ethofull<- merge(etho, enroll, by= "CalfID")
 ethofull <- ethofull |> 
   rename(TRT = TRT.x)
 
+
+hb <- enroll %>% 
+  pivot_longer(
+    cols = starts_with("Hb"), 
+    names_to = "PrePost", 
+    values_to = "HbmgdL"
+  ) %>% 
+  mutate(
+    PrePost = case_when( 
+      PrePost == "HbpremgdL"  ~ "Pre", 
+      PrePost == "HbpostmgdL" ~ "Post"
+    )
+  )
 ```
 
 ## Enrollment Description
@@ -195,7 +208,6 @@ This describes the scrotal circumferences in calves for each of the three treatm
 ### Descriptive Data
 
 ```{r}
-#| include: false 
 #| warning: false 
 #| echo: false 
 
@@ -744,4 +756,144 @@ ggplot(ethofull, aes(x = Layed.Down)) +
 
 table(ethofull$TRT, ethofull$Layed.Down)
  
+```
+
+## Serum Haptoglobin (mg/dL)
+
+This describes serum haptoglobin levels in calves in the study.
+
+```{r}
+#| warning: false 
+#| echo: false 
+
+enroll %>% 
+  summarize(
+    Pre = mean (HbpremgdL), 
+    sdpre = sd(HbpremgdL), 
+    Post = mean (HbpostmgdL), 
+    sdpost = sd(HbpostmgdL)
+  )
+
+enroll %>% 
+  group_by(TRT) %>% 
+  summarize(
+    Pre = mean (HbpremgdL), 
+    sdpre = sd(HbpremgdL), 
+    Post = mean (HbpostmgdL), 
+    sdpost = sd(HbpostmgdL)
+  )
+
+
+ggplot(enroll, aes(x = TRT, y = HbpremgdL, color = TRT)) +
+  geom_boxplot() +
+  geom_jitter() +
+    theme_classic()
+
+ggplot(enroll, aes(x = HbpremgdL)) +
+  geom_histogram() +
+    theme_classic()
+
+
+ggplot(enroll, aes(x = TRT, y = HbpostmgdL, color = TRT)) +
+  geom_boxplot() +
+  geom_jitter() +
+    theme_classic()
+  
+ggplot(enroll, aes(x = HbpostmgdL)) +
+  geom_histogram() +
+    theme_classic()
+
+
+hb$PrePost <- factor(hb$PrePost, levels = c("Pre", "Post"))
+
+ggplot(hb, aes(x = PrePost, y = HbmgdL, color = TRT)) +
+  geom_boxplot() +
+  geom_jitter() +
+    theme_classic()
+
+
+lm_pre <-lm(HbpremgdL~TRT, data=enroll)
+summary(lm_pre)
+emmeans(lm_pre, ~TRT)
+plot(lm_pre)
+
+
+
+lm_post <-lm(HbpostmgdL~TRT + FOO, data=enroll)
+summary(lm_post)
+emmeans(lm_post, ~TRT)
+plot(lm_post)
+
+
+
+
+#What if we get rid of outlier in the data (n>2SD from the mean) Makes it look a lot better, but this is lying with the data. What about a transformation? 
+
+noout<- 
+  enroll %>% 
+      filter (!HbpostmgdL>29.2)
+
+noout %>% 
+  group_by(TRT) |>
+  summarize (Count = n())
+
+ggplot(noout, aes(x = TRT, y = HbpremgdL, color = TRT)) +
+  geom_boxplot() +
+  geom_jitter() +
+    theme_classic()
+
+ggplot(noout, aes(x = HbpremgdL)) +
+  geom_histogram() +
+    theme_classic()
+
+
+ggplot(noout, aes(x = TRT, y = HbpostmgdL, color = TRT)) +
+  geom_boxplot() +
+  geom_jitter() +
+    theme_classic()
+  
+ggplot(noout, aes(x = HbpostmgdL)) +
+  geom_histogram() +
+    theme_classic()
+
+
+lm_pre <-lm(HbpremgdL~TRT, data=noout)
+summary(lm_pre)
+emmeans(lm_pre, ~TRT)
+plot(lm_pre)
+
+lm_post <-lm(HbpostmgdL~TRT, data=noout)
+summary(lm_post)
+emmeans(lm_post, ~TRT)
+plot(lm_post)
+
+
+#What about log transformation?
+
+log<- 
+  enroll %>% 
+  mutate(
+    HbpostmgdL = log10(HbpostmgdL), 
+    HbpremgdL = log10(HbpremgdL))
+      
+
+ggplot(log, aes(x = TRT, y = HbpremgdL, color = TRT)) +
+  geom_boxplot() +
+  geom_jitter() +
+    theme_classic()
+
+ggplot(log, aes(x = HbpremgdL)) +
+  geom_histogram() +
+    theme_classic()
+
+
+ggplot(log, aes(x = TRT, y = HbpostmgdL, color = TRT)) +
+  geom_boxplot() +
+  geom_jitter() +
+    theme_classic()
+  
+ggplot(log, aes(x = HbpostmgdL)) +
+  geom_histogram() +
+    theme_classic()
+
 ```
