@@ -831,13 +831,13 @@ plot(lm_post)
 
 noout<- 
   enroll %>% 
-      filter (!HbpostmgdL>29.2)
+      filter (!HbpostmgdL>30)
 
 noout %>% 
   group_by(TRT) |>
   summarize (Count = n())
 
-ggplot(noout, aes(x = TRT, y = HbpremgdL, color = TRT)) +
+ ggplot(noout, aes(x = TRT, y = HbpremgdL, color = TRT)) +
   geom_boxplot() +
   geom_jitter() +
     theme_classic()
