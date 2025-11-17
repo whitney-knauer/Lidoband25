@@ -927,7 +927,13 @@ ggplot(hb, aes(x = TRT, y = HbmgdL, color = TRT)) +
   geom_boxplot() +
   facet_wrap(vars(PrePost)) +
   geom_jitter() +
-    theme_classic()
+    theme_classic()+
+   scale_color_manual(
+    values = c(
+      "BO" = "red4",
+      "B+N" = "goldenrod2",
+      "LIDO" = "wheat4"
+    ))
 
 
 
@@ -1052,6 +1058,60 @@ plot(lm_both)
 
 
 
+
+
+```
+
+### Models
+
+```{r}
+lnhb<- 
+  hb %>% 
+  mutate(
+    HbmgdL = log(HbmgdL))
+
+
+      
+
+ggplot(lnhb, aes(x = PrePost, y = HbmgdL, color = TRT)) +
+  geom_boxplot() +
+  geom_jitter() +
+    theme_classic()
+
+ggplot(lnhb, aes(x = HbmgdL)) +
+  geom_histogram() +
+    theme_classic()
+
+
+lm_hb <- lm(HbmgdL ~ TRT, data=lnhb) #no
+summary(lm_hb)
+
+lm_hbAge <- lm(HbmgdL ~ AgeatEnroll, data=lnhb) #no
+summary(lm_hbAge)
+
+lm_hbEG <- lm(HbmgdL ~ Egroup, data=lnhb) #yes
+summary(lm_hbEG)
+
+lm_hbBW <- lm(HbmgdL ~ BWKg, data=lnhb) #no
+summary(lm_hbBW)
+
+lm_hbfoo <- lm(HbmgdL ~ FOO, data=lnhb) #no
+summary(lm_hbfoo)
+
+
+lm_both <-lm(HbmgdL~TRT*PrePost + Egroup, data=lnhb)
+summary(lm_both)
+emmeans(lm_both, ~TRT|PrePost)
+plot(lm_both)
+
+
+car::Anova(lm_both, type=3)
+emmeans(lm_both, ~ TRT)
+emmeans(lm_both, ~PrePost)
+x <- emmeans(lm_both, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+summary(pairwise_comparisons, adjust="none")
 
 
 ```
