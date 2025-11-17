@@ -41,6 +41,7 @@ library(gridGraphics)
 library(multcomp)
 library(hms)
 library(gt)
+library(extrafont)
 ```
 
 ## Data Steps
@@ -103,6 +104,22 @@ etho <- read.csv("data/ethogram.csv")
 ethofull<- merge(etho, enroll, by= "CalfID")
 ethofull <- ethofull |> 
   rename(TRT = TRT.x)
+
+ethofull<- 
+  ethofull %>% 
+  mutate( vocalyn = 
+    case_when(
+      Vocalize >= 1 ~ 1, 
+      Vocalize == 0  ~ 0))
+
+ethofull<- 
+  ethofull %>% 
+  mutate( layyn = 
+    case_when(
+      Layed.Down >= 1 ~ 1, 
+      Layed.Down == 0  ~ 0))
+
+
 
 
 hb <- enroll %>% 
@@ -297,7 +314,7 @@ car::Anova(mod_base, type=3)
 mod_ar1 <- lme( 
   fixed=SCAV ~ TRT*Day + BLSCAV,
   random = ~ 1 | CalfID,
-  correlation = corAR1(form= ~ TimeNum | CalfID),
+  correlation = corAR1(form = ~ TimeNum | CalfID),
   data=scfull
   )
 summary(mod_ar1)
@@ -356,6 +373,25 @@ ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) +
   ) +
   theme_classic() +
   scale_y_continuous(limits = c(10.5,13), breaks = seq(10.5,13, by = 0.5))
+
+
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
+ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) + 
+  geom_line(size = 1)+
+  scale_color_manual(values=custom_colors)+
+  geom_point(size = 1)+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width =0.2) +
+  labs(
+    x = "Day",
+    y = "Averge Scrotal Circumference (cm)"
+  ) +
+  theme_classic() +
+  scale_y_continuous(limits = c(10.0,13), breaks = seq(10.0,13, by = 0.5))+
+    theme (legend.position = "none", 
+         legend.direction = "horizontal", 
+              axis.text = element_text(color = "black", size=10), 
+               legend.text = element_text(color = "black", size=9))+
+                theme(text=element_text(size=10, family = "Times New Roman"))
 ```
 
 ## Health Score
@@ -439,13 +475,40 @@ hsfull |>
 
 table(hsfull$TRT, hsfull$Scour)
 #         0  1
-#   BO   122 1 = 1/123
-#   B+N  122 3 = 3/125
+#   BO   121 3 = 1/123
+#   B+N  123 1 = 3/125
 #   LIDO 113 9 = 9/122
 
 #worth evaluating with models? Only n=13 calves were ID'd with abnormal FS
 CrossTable(hsfull$Scour,  hsfull$Calf.Age, fisher=TRUE) 
 CrossTable(hsfull$Scour,  hsfull$TRT, fisher = TRUE) #yes, in lidoband group
+CrossTable(hsfull$Scour, hsfull$FOO, fisher = TRUE) #yes
+CrossTable(hsfull$Scour, hsfull$Egroup, fisher = TRUE)#no
+
+
+
+
+# Fit a repeated measures mixed effects model for scours.
+hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
+model <- glmer(Scour ~ TRT  + FOO + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
+
+summary(model)
+emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO")), type = "response")
+
+fixed_effects <- fixef(model)
+odds_ratios <- exp(fixed_effects)
+cat("Odds Ratios:\n")
+print(odds_ratios)
+
+type3_p_values <- Anova(model, type="III", test="Chisq")
+cat("\nType III p-values:\n")
+print(type3_p_values)
+adjusted_proportions <- odds_ratios / (1 + odds_ratios)
+cat("\nAdjusted Proportions:\n")
+print(adjusted_proportions)
+contrasts <- glht(model, linfct = mcp(TRT = "Tukey"))
+summary(contrasts)
+
 
 ```
 
@@ -467,6 +530,37 @@ table(hsfull$TRT, hsfull$Sick)
 CrossTable(hsfull$Sick,  hsfull$Calf.Age, fisher=TRUE) #yes, effect of day
 CrossTable(hsfull$Sick,  hsfull$TRT, fisher = TRUE) #yes
 CrossTable(hsfull$Sick, hsfull$Egroup, fisher = TRUE) #no
+CrossTable(hsfull$Sick, hsfull$FOO, fisher = TRUE)
+
+
+# Fit a repeated measures mixed effects model for cick.
+hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
+model <- glmer(Sick ~ TRT  + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
+
+summary(model)
+emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO")), type = "response")
+
+fixed_effects <- fixef(model)
+odds_ratios <- exp(fixed_effects)
+cat("Odds Ratios:\n")
+print(odds_ratios)
+
+type3_p_values <- Anova(model, type="III", test="Chisq")
+cat("\nType III p-values:\n")
+print(type3_p_values)
+adjusted_proportions <- odds_ratios / (1 + odds_ratios)
+cat("\nAdjusted Proportions:\n")
+print(adjusted_proportions)
+contrasts <- glht(model, linfct = mcp(TRT = "Tukey"))
+summary(contrasts)
+
+
+
+
+
+
+
+
 ```
 
 ### Fever
@@ -475,7 +569,7 @@ CrossTable(hsfull$Sick, hsfull$Egroup, fisher = TRUE) #no
 #| warning: false
 
 
-#What proportion of calves fever (RT> 103.5) in each group?
+#What proportion of calves fever (RT > 103.5) in each group?
 
 table(hsfull$TRT, hsfull$Fever)
 #          0  1
@@ -487,7 +581,6 @@ table(hsfull$TRT, hsfull$Fever)
 CrossTable(hsfull$Fever,  hsfull$Calf.Age, fisher=TRUE) #more on day 2 and 3  
 CrossTable(hsfull$Fever,  hsfull$TRT, fisher = TRUE) #yes, more in Lido?
 tab <- xtabs(~TRT + Fever + Calf.Age, data=hsfull)
-tab
 
 CrossTable(hsfull$Fever, hsfull$Egroup, fisher = TRUE) #yes, more in the second iteration which makes sense bc it was ungodly hot
 CrossTable(hsfull$Fever, hsfull$FOO, fisher = TRUE)#no
@@ -495,10 +588,10 @@ CrossTable(hsfull$Fever, hsfull$FOO, fisher = TRUE)#no
 
 hsfull$TRT <- factor(hsfull$TRT) 
 hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
-model <- glmer(Fever ~ TRT + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
+model <- glmer(Fever ~ TRT + Egroup + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
 
 summary(model)
-emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO"), type = "response"))
+emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO")), type = "response")
 
 fixed_effects <- fixef(model)
 odds_ratios <- exp(fixed_effects)
@@ -547,7 +640,8 @@ LidoEthoSummary <-
     .groups = "drop"
   )
 
-LidoEthoSummary
+gt(LidoEthoSummary)
+
 ```
 
 ### Struggle
@@ -576,6 +670,10 @@ ggplot(ethofull, aes(x = TRT, y = Struggle, fill = TRT)) +
     y = "Struggle Score"
   ) +
   theme_classic()
+
+
+#Transformation? 
+
 ```
 
 #### Model
@@ -583,26 +681,29 @@ ggplot(ethofull, aes(x = TRT, y = Struggle, fill = TRT)) +
 ```{r}
 ethofull$TRT <- relevel(factor(ethofull$TRT), ref = "BO")
 
-lm_s <- lm(Struggle ~ TRT, data=ethofull)
+lm_s <- lm(Struggle ~ TRT, data=ethofull) #no
 summary(lm_s)
 
-lm_sAge <- lm(Struggle ~ AgeatEnroll, data=ethofull)
+lm_sAge <- lm(Struggle ~ AgeatEnroll, data=ethofull) #no
 summary(lm_sAge)
 
-lm_sEG <- lm(Struggle ~ Egroup, data=ethofull)
+lm_sEG <- lm(Struggle ~ Egroup, data=ethofull) #yes
 summary(lm_sEG)
 
-lm_sBW <- lm(Struggle ~ BWKg, data=ethofull)
+lm_sBW <- lm(Struggle ~ BWKg, data=ethofull) #no
 summary(lm_sBW)
+
 
 lm_s <- lm(Struggle ~ TRT + Egroup, data=ethofull)
 summary(lm_s, adjust="tukey")
 
 plot(lm_s)
+car::Anova(lm_s, type=3)
 emmeans(lm_s, ~ TRT)
 x <- emmeans(lm_s, ~ TRT)
 pairwise_comparisons <- pairs(x)
 summary(pairwise_comparisons, adjust="tukey")
+summary(pairwise_comparisons, adjust="none")
 
 
 #poisson regression? 
@@ -656,23 +757,25 @@ ethofull$TRT <- relevel(factor(ethofull$TRT), ref = "BO")
 lm_TF <- lm(Tail.flick ~ TRT, data=ethofull)
 summary(lm_TF)
 
-lm_TFAge <- lm(Tail.flick ~ AgeatEnroll, data=ethofull)
+lm_TFAge <- lm(Tail.flick ~ AgeatEnroll, data=ethofull) #yes
 summary(lm_TFAge)
 
-lm_TFEG <- lm(Tail.flick ~ Egroup, data=ethofull)
+lm_TFEG <- lm(Tail.flick ~ Egroup, data=ethofull) #no
 summary(lm_TFEG)
 
-lm_TFBW <- lm(Tail.flick ~ BWKg, data=ethofull)
+lm_TFBW <- lm(Tail.flick ~ BWKg, data=ethofull) #no
 summary(lm_TFBW)
 
 lm_TF <- lm(Tail.flick ~ TRT + AgeatEnroll, data=ethofull)
 summary(lm_TF, adjust="tukey")
+car::Anova(lm_TF, type=3)
 
 plot(lm_TF)
 emmeans(lm_TF, ~ TRT)
 x <- emmeans(lm_TF, ~ TRT)
 pairwise_comparisons <- pairs(x)
 summary(pairwise_comparisons, adjust="tukey")
+summary(pairwise_comparisons, adjust="none")
 ```
 
 ### Kicks/Stomps
@@ -709,26 +812,29 @@ ethofull |>
 ```{r}
 ethofull$TRT <- relevel(factor(ethofull$TRT), ref = "BO")
 
-lm_Kick <- lm(Kick ~ TRT, data=ethofull)
+lm_Kick <- lm(Kick ~ TRT, data=ethofull) #no
 summary(lm_Kick)
 
-lm_KickAge <- lm(Kick ~ AgeatEnroll, data=ethofull)
+lm_KickAge <- lm(Kick ~ AgeatEnroll, data=ethofull) #no
 summary(lm_KickAge)
 
-lm_KickEG <- lm(Kick ~ Egroup, data=ethofull)
+lm_KickEG <- lm(Kick ~ Egroup, data=ethofull) #no
 summary(lm_KickEG)
 
-lm_KickBW <- lm(Kick ~ BWKg, data=ethofull)
+lm_KickBW <- lm(Kick ~ BWKg, data=ethofull) #no
 summary(lm_KickBW)
 
-lm_Kick <- lm(Kick ~ TRT + BWKg, data=ethofull)
+lm_Kick <- lm(Kick ~ TRT , data=ethofull)
 summary(lm_Kick, adjust="tukey")
+car::Anova(lm_Kick, type=3)
 
 plot(lm_Kick)
 emmeans(lm_Kick, ~ TRT)
 x <- emmeans(lm_Kick, ~ TRT)
 pairwise_comparisons <- pairs(x)
 summary(pairwise_comparisons, adjust="tukey")
+
+summary(pairwise_comparisons, adjust="none")
 ```
 
 ### Vocalize
@@ -744,7 +850,11 @@ ggplot(ethofull, aes(x = TRT, y = Vocalize, fill = TRT)) +
   ) +
   theme_minimal()
 
-table(ethofull$TRT, ethofull$Vocalize)
+table(ethofull$TRT, ethofull$vocalyn)
+
+
+
+
 ```
 
 ### Lay Down
@@ -754,7 +864,7 @@ table(ethofull$TRT, ethofull$Vocalize)
 ggplot(ethofull, aes(x = Layed.Down)) +
   geom_histogram() 
 
-table(ethofull$TRT, ethofull$Layed.Down)
+table(ethofull$TRT, ethofull$layyn)
  
 ```
 
@@ -782,6 +892,7 @@ enroll %>%
     Post = mean (HbpostmgdL), 
     sdpost = sd(HbpostmgdL)
   )
+
 
 
 ggplot(enroll, aes(x = TRT, y = HbpremgdL, color = TRT)) +
@@ -812,6 +923,16 @@ ggplot(hb, aes(x = PrePost, y = HbmgdL, color = TRT)) +
     theme_classic()
 
 
+ggplot(hb, aes(x = TRT, y = HbmgdL, color = TRT)) +
+  geom_boxplot() +
+  facet_wrap(vars(PrePost)) +
+  geom_jitter() +
+    theme_classic()
+
+
+
+
+
 lm_pre <-lm(HbpremgdL~TRT, data=enroll)
 summary(lm_pre)
 emmeans(lm_pre, ~TRT)
@@ -827,11 +948,11 @@ plot(lm_post)
 
 
 
-#What if we get rid of outlier in the data (n>2SD from the mean) Makes it look a lot better, but this is lying with the data. What about a transformation? 
+#What if we get rid of outlier in the data (n>2.5SD from the mean) Makes it look a lot better, but this is lying with the data. What about a transformation? 
 
 noout<- 
   enroll %>% 
-      filter (!HbpostmgdL>30)
+      filter (!HbpostmgdL>33)
 
 noout %>% 
   group_by(TRT) |>
@@ -868,32 +989,69 @@ emmeans(lm_post, ~TRT)
 plot(lm_post)
 
 
-#What about log transformation?
+#What about natural log transformation?
 
-log<- 
+ln<- 
   enroll %>% 
   mutate(
-    HbpostmgdL = log10(HbpostmgdL), 
-    HbpremgdL = log10(HbpremgdL))
+    HbpostmgdL = log(HbpostmgdL), 
+    HbpremgdL = log(HbpremgdL))
       
 
-ggplot(log, aes(x = TRT, y = HbpremgdL, color = TRT)) +
+ggplot(ln, aes(x = TRT, y = HbpremgdL, color = TRT)) +
   geom_boxplot() +
   geom_jitter() +
     theme_classic()
 
-ggplot(log, aes(x = HbpremgdL)) +
+ggplot(ln, aes(x = HbpremgdL)) +
   geom_histogram() +
     theme_classic()
 
 
-ggplot(log, aes(x = TRT, y = HbpostmgdL, color = TRT)) +
+ggplot(ln, aes(x = TRT, y = HbpostmgdL, color = TRT)) +
   geom_boxplot() +
   geom_jitter() +
     theme_classic()
   
-ggplot(log, aes(x = HbpostmgdL)) +
+ggplot(ln, aes(x = HbpostmgdL)) +
   geom_histogram() +
     theme_classic()
+
+
+lm_pre <-lm(HbpremgdL~TRT, data=ln)
+summary(lm_pre)
+emmeans(lm_pre, ~TRT)
+plot(lm_pre)
+
+lm_post <-lm(HbpostmgdL~TRT, data=ln)
+summary(lm_post)
+emmeans(lm_post, ~TRT)
+plot(lm_post)
+
+#natural log for pre-post x trt? 
+
+lnhb<- 
+  hb %>% 
+  mutate(
+    HbmgdL = log(HbmgdL))
+      
+
+ggplot(lnhb, aes(x = PrePost, y = HbmgdL, color = TRT)) +
+  geom_boxplot() +
+  geom_jitter() +
+    theme_classic()
+
+ggplot(lnhb, aes(x = HbmgdL)) +
+  geom_histogram() +
+    theme_classic()
+
+lm_both <-lm(HbmgdL~TRT*PrePost + Egroup, data=lnhb)
+summary(lm_both)
+emmeans(lm_both, ~TRT|PrePost)
+plot(lm_both)
+
+
+
+
 
 ```

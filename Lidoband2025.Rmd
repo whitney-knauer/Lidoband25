@@ -338,6 +338,12 @@ hourrm <-
 
 #from 5951 to 5569 (6.8% of data removed 6/93 calves)
 
+
+ggplot(hourrm, aes(x=hour, y=LyingTime, color = factor(Cow), group = Cow))+
+         geom_line (aes(fill = Cow), size = 1, alpha = 0.1)+
+         geom_point()+ 
+         theme_minimal()
+
 lt_hs <- hourrm |> 
   filter(hour<= 60) |> 
   group_by (TRT, hour) |> 
@@ -462,23 +468,30 @@ summary(mod_ar1)
 car::Anova(mod_ar1, type=3)
 
 emm <- emmeans(mod_ar1, ~ TRT * hour)
-summary(emm)
-pairs(emm, by = "TRT")
+emmeans(mod_ar1, ~TRT)
+#summary(emm)
+#pairs(emm, by = "TRT")
+pairs(emm, by = "hour")
 
 emm_df <- as.data.frame(emm)
 
-custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
   geom_line() +
   geom_point() +
   scale_color_manual(values=custom_colors)+
   geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.2) +
   labs(
-    x = "Hour from Banding",
+    x = "Hour from Banding (Hr 1)",
     y = "Estimated Marginal Means of Lying Time") +
   theme_classic()+
-  scale_y_continuous(limits = c(0, 70), breaks = seq(0, 70, by = 10))+
-  scale_x_discrete(breaks = seq(0, 60, by = 4))
+  scale_y_continuous(limits = c(20, 70), breaks = seq(20, 70, by = 10))+
+  scale_x_discrete(breaks = seq(0, 60, by = 4)) +
+      theme (legend.position = "none", 
+         legend.direction = "horizontal", 
+              axis.text = element_text(color = "black", size=10), 
+               legend.text = element_text(color = "black", size=10))+
+                theme(text=element_text(size=10, family = "Times New Roman"))
 
 ```
 
@@ -538,13 +551,14 @@ summary(mod_ar1)
 car::Anova(mod_ar1, type=3)
 
 emm <- emmeans(mod_ar1, ~ TRT * hour)
+emmeans(mod_ar1, ~TRT)
 summary(emm)
 pairs(emm, by = "TRT")
 pairs(emm, by = "hour")
 
 emm_df <- as.data.frame(emm)
 
-custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
   geom_line() +
   geom_point() +
@@ -615,13 +629,14 @@ summary(mod_ar1)
 car::Anova(mod_ar1, type=3)
 
 emm <- emmeans(mod_ar1, ~ TRT * hour)
+emmeans(mod_ar1, ~TRT)
 summary(emm)
 pairs(emm, by = "TRT")
-pairs (emm, by = "hour")
+pairs(emm, by = "hour")
 
 emm_df <- as.data.frame(emm)
 
-custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
   geom_line() +
   geom_point() +
@@ -700,7 +715,7 @@ pairs(emm, by = "hour")
 
 emm_df <- as.data.frame(emm)
 
-custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
   geom_line() +
   geom_point() +
