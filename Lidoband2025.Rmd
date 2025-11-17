@@ -111,6 +111,16 @@ use1[, six := (incr -1)%/% 24+1, by = Cow]
 use1[, twelve := (incr -1)%/% 48+1, by = Cow]
 use1[, four := (incr -1)%/% 16+1, by = Cow]
 
+
+#enrollment spreadsheet
+enroll <- read_csv("data/enroll.csv")
+enroll$Cow = enroll$`Study ID`
+
+use1<- 
+  merge (use1, enroll, by = "Cow")
+use1$TRT = use1$TRT.x
+
+
 ```
 
 ```{r}
@@ -126,7 +136,7 @@ hour <- use1[, .(
   LyingTime = sum(`Lying Time`)/60,
   LyingBouts = sum(`Lying Bouts`),
   StandingTime = sum(`Standing Time`)/60), 
-  by = .(Cow, TRT, hour, sday)]
+  by = .(Cow, TRT, hour, sday, FOO, Egroup, AgeatEnroll)]
 
 #dividing by 60 results in min
 
@@ -136,7 +146,7 @@ day <- use1[, .(
   LyingTime = sum(`Lying Time`)/3600,
   LyingBouts = sum(`Lying Bouts`),
   StandingTime = sum(`Standing Time`)/3600
-), by = .(Cow, TRT, day, sday)]
+), by = .(Cow, TRT, day, sday, FOO, Egroup, AgeatEnroll)]
 
 #divinding by 3600 results in hours
 
@@ -146,7 +156,7 @@ six <- use1[, .(
   LyingTime = sum(`Lying Time`)/3600,
   LyingBouts = sum(`Lying Bouts`),
   StandingTime = sum(`Standing Time`)/3600
-), by = .(Cow, TRT, six, sday)]
+), by = .(Cow, TRT, six, sday, FOO, Egroup, AgeatEnroll)]
 
 twelve <- use1[, .(
   MotionIndex = sum(`Motion Index`),
@@ -154,7 +164,7 @@ twelve <- use1[, .(
   LyingTime = sum(`Lying Time`)/3600,
   LyingBouts = sum(`Lying Bouts`),
   StandingTime = sum(`Standing Time`)/3600
-), by = .(Cow, TRT, twelve, sday)]
+), by = .(Cow, TRT, twelve, sday, FOO, Egroup, AgeatEnroll)]
 
 
 four <- use1[, .(
@@ -163,7 +173,7 @@ four <- use1[, .(
   LyingTime = sum(`Lying Time`)/3600,
   LyingBouts = sum(`Lying Bouts`),
   StandingTime = sum(`Standing Time`)/3600
-), by = .(Cow, TRT, four, sday)]
+), by = .(Cow, TRT, four, sday, FOO, Egroup, AgeatEnroll)]
 
 write.csv(x = day, file = "data/daydatachecks.csv")
 ```
@@ -468,7 +478,7 @@ anova(mod_base, mod_ar1, mod_rs)
 
 
 mod_ar1 <- lme(
-  fixed = LyingTime ~ hour * TRT,
+  fixed = LyingTime ~ hour * TRT + AgeatEnroll,
   random = ~ 1 | Cow,
   correlation = corAR1(form = ~ TimeNum | Cow),
   data = hourrm
@@ -560,7 +570,7 @@ anova(mod_base, mod_ar1, mod_rs)
 
 
 mod_ar1 <- lme(
-  fixed = StandingTime ~ hour * TRT,
+  fixed = StandingTime ~ hour * TRT + AgeatEnroll,
   random = ~ 1 | Cow,
   correlation = corAR1(form = ~ TimeNum | Cow),
   data = hourrm
@@ -642,7 +652,7 @@ anova(mod_base, mod_ar1, mod_rs)
 
 
 mod_ar1 <- lme(
-  fixed = LyingBouts ~ hour * TRT,
+  fixed = LyingBouts ~ hour * TRT + Egroup,
   random = ~ 1 | Cow,
   correlation = corAR1(form = ~ TimeNum | Cow),
   data = hourrm
