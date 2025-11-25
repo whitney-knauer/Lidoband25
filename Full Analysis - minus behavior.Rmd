@@ -82,6 +82,7 @@ hs |>
     Refuse = if_else(Appetite>=2, 1, 0),
     Scour = if_else(Fecal>=2, 1, 0),
     Fever = if_else(BodyTemp>103.5, 1, 0), 
+    Fever2 = if_else(BodyTemp>104, 1, 0),
     Sick = if_else(THS>=4, 1, 0), 
     DiarSS = case_when(
       Fecal <= 1       ~ "Normal", 
@@ -573,9 +574,9 @@ summary(contrasts)
 
 table(hsfull$TRT, hsfull$Fever)
 #          0  1
-#   BO   112 10 = 10/122  (8.2)
-#   B+N  116 8 = 8/124    (6.4)
-#   LIDO 97 24 = 24/121   (19.8)
+#   BO   116 8 = 8/124      (6.4)
+#   B+N  114 10 = 10/124    (8.1)
+#   LIDO 97 24 = 24/121     (19.8)
 
 #more calves in Lido.....were they more likely to have fever? 
 CrossTable(hsfull$Fever,  hsfull$Calf.Age, fisher=TRUE) #more on day 2 and 3  
@@ -590,6 +591,58 @@ CrossTable(hsfull$Fever, hsfull$FOO, fisher = TRUE)#no
 hsfull$TRT <- factor(hsfull$TRT) 
 hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
 model <- glmer(Fever ~ TRT + Egroup + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
+
+summary(model)
+emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO")), type = "response")
+
+fixed_effects <- fixef(model)
+odds_ratios <- exp(fixed_effects)
+cat("Odds Ratios:\n")
+print(odds_ratios)
+
+type3_p_values <- Anova(model, type="III", test="Chisq")
+cat("\nType III p-values:\n")
+print(type3_p_values)
+adjusted_proportions <- odds_ratios / (1 + odds_ratios)
+cat("\nAdjusted Proportions:\n")
+print(adjusted_proportions)
+contrasts <- glht(model, linfct = mcp(TRT = "Tukey"))
+summary(contrasts)
+
+emm <- emmeans(model, ~ TRT)
+contrast_OR <- contrast(emm, method = "pairwise") %>%
+  summary(infer = TRUE, type = "response")
+contrast_OR
+
+```
+
+### Fever 2 (\>104)
+
+```{r}
+#| warning: false
+
+
+#What proportion of calves fever (RT > 104) in each group?
+
+table(hsfull$TRT, hsfull$Fever2)
+#          0  1
+#   BO   120 4 = 4/124  (3.2)
+#   B+N  123 1 = 1/124    (0.8)
+#   LIDO 112 9 = 9/121   (7.4)
+
+#more calves in Lido.....were they more likely to have fever? 
+CrossTable(hsfull$Fever2,  hsfull$Calf.Age, fisher=TRUE) #more on day 3 
+CrossTable(hsfull$Fever2,  hsfull$TRT, fisher = TRUE) #yes, more in Lido
+tab <- xtabs(~TRT + Fever2 + Calf.Age, data=hsfull)
+tab
+
+CrossTable(hsfull$Fever2, hsfull$Egroup, fisher = TRUE) #yes, more in the second iteration which makes sense bc it was ungodly hot
+CrossTable(hsfull$Fever2, hsfull$FOO, fisher = TRUE)#no
+
+
+hsfull$TRT <- factor(hsfull$TRT) 
+hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
+model <- glmer(Fever2 ~ TRT + Egroup + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
 
 summary(model)
 emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO")), type = "response")
