@@ -440,7 +440,20 @@ hourrm %>%
   summarize (
    lying = mean (LyingTime), 
    sdlying = sd(LyingTime))
-  
+
+
+hourrm$LyingTime_num <- as.numeric(hourrm$LyingTime, units = "hours")
+lm_foo <- lm(LyingTime_num ~ FOO, data = hourrm)
+summary(lm_foo)
+
+
+hourrm$LyingTime_num <- as.numeric(hourrm$LyingTime, units = "hours")
+lm_age <- lm(LyingTime_num ~ AgeatEnroll, data = hourrm)
+summary(lm_age) 
+
+hourrm$LyingTime_num <- as.numeric(hourrm$LyingTime, units = "hours")
+lm_group <- lm(LyingTime_num ~ Egroup, data = hourrm)
+summary(lm_group)
 
 
 hourrm$hour <- factor(hourrm$hour, levels = unique(hourrm$hour))  # if already time-ordered
@@ -476,9 +489,8 @@ anova(mod_base, mod_ar1, mod_rs)
 #AR1 is the best model based on fit, but it's not great
 
 
-
 mod_ar1 <- lme(
-  fixed = LyingTime ~ hour * TRT + AgeatEnroll,
+  fixed = LyingTime ~ hour * TRT + AgeatEnroll + Egroup,
   random = ~ 1 | Cow,
   correlation = corAR1(form = ~ TimeNum | Cow),
   data = hourrm
@@ -535,6 +547,24 @@ hourrm %>%
    sdlying = sd(StandingTime))
 
 
+
+hourrm$Stand_num <- as.numeric(hourrm$StandingTime, units = "hours")
+lm_foo <- lm(Stand_num ~ FOO, data = hourrm)
+summary(lm_foo)
+
+
+hourrm$Stand_num <- as.numeric(hourrm$StandingTime, units = "hours")
+lm_age <- lm(Stand_num ~ AgeatEnroll, data = hourrm)
+summary(lm_age) 
+
+hourrm$Stand_num <- as.numeric(hourrm$StandingTime, units = "hours")
+lm_group <- lm(Stand_num ~ Egroup, data = hourrm)
+summary(lm_group)
+
+
+
+
+
 hourrm$hour <- factor(hourrm$hour, levels = unique(hourrm$hour))  # if already time-ordered
 hourrm$TimeNum <- as.numeric(hourrm$hour)
 
@@ -570,7 +600,7 @@ anova(mod_base, mod_ar1, mod_rs)
 
 
 mod_ar1 <- lme(
-  fixed = StandingTime ~ hour * TRT + AgeatEnroll,
+  fixed = StandingTime ~ hour * TRT + AgeatEnroll + Egroup,
   random = ~ 1 | Cow,
   correlation = corAR1(form = ~ TimeNum | Cow),
   data = hourrm
@@ -617,6 +647,21 @@ hourrm <-
   filter(hour<61)
 
 
+
+lm_foo <- lm(LyingBouts ~ FOO, data = hourrm)
+summary(lm_foo)
+
+lm_age <- lm(LyingBouts ~ AgeatEnroll, data = hourrm)
+summary(lm_age) 
+
+lm_group <- lm(LyingBouts ~ Egroup, data = hourrm)
+summary(lm_group)
+
+
+
+
+
+
 hourrm$hour <- factor(hourrm$hour, levels = unique(hourrm$hour))  # if already time-ordered
 hourrm$TimeNum <- as.numeric(hourrm$hour)
 
@@ -652,7 +697,7 @@ anova(mod_base, mod_ar1, mod_rs)
 
 
 mod_ar1 <- lme(
-  fixed = LyingBouts ~ hour * TRT + Egroup,
+  fixed = LyingBouts ~ hour * TRT + Egroup + AgeatEnroll + FOO,
   random = ~ 1 | Cow,
   correlation = corAR1(form = ~ TimeNum | Cow),
   data = hourrm
@@ -698,6 +743,15 @@ hourrm <-
   filter(! (Cow %in% c(11, 20, 54, 57, 64, 83))) %>% 
   filter(hour<61)
 
+lm_foo <- lm(Steps ~ FOO, data = hourrm)
+summary(lm_foo)
+
+lm_age <- lm(Steps ~ AgeatEnroll, data = hourrm)
+summary(lm_age) 
+
+lm_group <- lm(Steps ~ Egroup, data = hourrm)
+summary(lm_group)
+
 
 hourrm$hour <- factor(hourrm$hour, levels = unique(hourrm$hour))  # if already time-ordered
 hourrm$TimeNum <- as.numeric(hourrm$hour)
@@ -734,7 +788,7 @@ anova(mod_base, mod_ar1, mod_rs)
 
 
 mod_ar1 <- lme(
-  fixed = Steps ~ hour * TRT,
+  fixed = Steps ~ hour * TRT + FOO,
   random = ~ 1 | Cow,
   correlation = corAR1(form = ~ TimeNum | Cow),
   data = hourrm
@@ -773,6 +827,104 @@ ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
                legend.text = element_text(color = "black", size=10))+
                 theme(text=element_text(size=10, family = "Times New Roman"))
 
+```
+
+#### Motion Index
+
+Is this a better measure of restlessness? I am unsure but I am also unsure about Steps.
+
+```{r}
+#| warning: false
+#| echo: false
+
+hourrm <-
+  hour |> 
+  filter(! (Cow %in% c(11, 20, 54, 57, 64, 83))) %>% 
+  filter(hour<61)
+
+lm_foo <- lm(MotionIndex ~ FOO, data = hourrm)
+summary(lm_foo)
+
+lm_age <- lm(MotionIndex ~ AgeatEnroll, data = hourrm)
+summary(lm_age) 
+
+lm_group <- lm(MotionIndex ~ Egroup, data = hourrm)#no
+summary(lm_group)
+
+
+hourrm$hour <- factor(hourrm$hour, levels = unique(hourrm$hour))  # if already time-ordered
+hourrm$TimeNum <- as.numeric(hourrm$hour)
+
+
+mod_base <- lme(
+  fixed = MotionIndex ~ hour * TRT,
+  random = ~ 1 | Cow,
+  data = hourrm
+)
+
+mod_ar1 <- lme(
+  fixed = MotionIndex ~ hour * TRT,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+
+mod_rs <- lme(
+  fixed = MotionIndex ~ hour * TRT,
+  random = ~ TimeNum | Cow,
+  data = hourrm
+)
+
+
+plot (mod_base)
+plot(mod_ar1)
+plot(mod_rs)
+
+anova(mod_base, mod_ar1, mod_rs)
+
+#AR1 is the best model based on fit, but it's not great
+
+
+
+mod_ar1 <- lme(
+  fixed = MotionIndex ~ hour * TRT + FOO + AgeatEnroll,
+  random = ~ 1 | Cow,
+  correlation = corAR1(form = ~ TimeNum | Cow),
+  data = hourrm
+)
+summary(mod_ar1)
+car::Anova(mod_ar1, type=3)
+
+emm <- emmeans(mod_ar1, ~ TRT * hour)
+emmeans(mod_ar1, ~ TRT*hour)
+emmeans(mod_ar1, ~ TRT)
+summary(emm)
+pairs(emm, by = "TRT")
+pairs(emm, by = "hour")
+
+x <- emmeans(mod_ar1, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+
+emm_df <- as.data.frame(emm)
+
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
+ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
+  geom_line() +
+  geom_point() +
+  scale_color_manual(values=custom_colors)+
+  geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width = 0.3) +
+  labs(
+    x = "Hour from Banding",
+    y = "Estimated Marginal Means of Motion Index") +
+  theme_classic()+
+  scale_y_continuous(limits = c(-25, 250), breaks = seq(-25, 250, by =25))+
+  scale_x_discrete(breaks = seq(0, 60, by = 4)) +
+      theme (legend.position = "none", 
+         legend.direction = "horizontal", 
+              axis.text = element_text(color = "black", size=10), 
+               legend.text = element_text(color = "black", size=10))+
+                theme(text=element_text(size=10, family = "Times New Roman"))
 ```
 
 ## Four Hour Level

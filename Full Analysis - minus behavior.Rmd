@@ -135,6 +135,11 @@ hb <- enroll %>%
       PrePost == "HbpostmgdL" ~ "Post"
     )
   )
+
+enroll<- enroll %>% 
+  mutate(
+    change = HbpostmgdL - HbpremgdL
+  )
 ```
 
 ## Enrollment Description
@@ -978,7 +983,7 @@ ggplot(hb, aes(x = PrePost, y = HbmgdL, color = TRT)) +
 
 
 ggplot(hb, aes(x = TRT, y = HbmgdL, color = TRT)) +
-  geom_boxplot() +
+  geom_boxplot(outlier.shape = NA) +
   facet_wrap(vars(PrePost)) +
   geom_jitter() +
     theme_classic()+
@@ -1116,9 +1121,16 @@ plot(lm_both)
 
 ```
 
-### Models
+### Models 
+
+#### Ln Transformation 
 
 ```{r}
+#| warning: false 
+#| echo: false
+
+
+
 lnhb<- 
   hb %>% 
   mutate(
@@ -1162,6 +1174,225 @@ plot(lm_both)
 car::Anova(lm_both, type=3)
 emmeans(lm_both, ~ TRT)
 emmeans(lm_both, ~PrePost)
+x <- emmeans(lm_both, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+summary(pairwise_comparisons, adjust="none")
+
+
+```
+
+#### Outliers Removed
+
+```{r}
+#| warning: false 
+#| echo: false
+
+noout<- 
+  hb %>% 
+      filter (!HbmgdL>30)
+
+noout %>% 
+  group_by(TRT) |>
+  summarize (Count = n())
+
+noout$PrePost <- factor(noout$PrePost, levels = c("Pre", "Post"))
+
+
+ggplot(noout, aes(x = TRT, y = HbmgdL, color = TRT)) +
+  geom_boxplot(outlier.shape = NA) +
+  facet_wrap(vars(PrePost)) +
+  geom_jitter() +
+    theme_classic()+
+   scale_color_manual(
+    values = c(
+      "BO" = "red4",
+      "B+N" = "goldenrod2",
+      "LIDO" = "wheat4"
+    ))
+
+lm_hb <- lm(HbmgdL ~ TRT, data=noout) #no
+summary(lm_hb)
+
+lm_hbAge <- lm(HbmgdL ~ AgeatEnroll, data=noout) #no
+summary(lm_hbAge)
+
+lm_hbEG <- lm(HbmgdL ~ Egroup, data=noout) #yes
+summary(lm_hbEG)
+
+lm_hbBW <- lm(HbmgdL ~ BWKg, data=noout) #no
+summary(lm_hbBW)
+
+lm_hbfoo <- lm(HbmgdL ~ FOO, data=noout) #no
+summary(lm_hbfoo)
+
+
+lm_both <-lm(HbmgdL~TRT*PrePost + Egroup, data=noout)
+summary(lm_both)
+emmeans(lm_both, ~TRT|PrePost)
+plot(lm_both)
+
+
+car::Anova(lm_both, type=3)
+emmeans(lm_both, ~ TRT)
+emmeans(lm_both, ~PrePost)
+x <- emmeans(lm_both, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+summary(pairwise_comparisons, adjust="none")
+
+
+
+
+```
+
+#### Control for Baseline
+
+```{r}
+#| warning: false 
+#| echo: false
+
+lm_hb <- lm(HbpostmgdL ~ TRT, data=enroll) #no
+summary(lm_hb)
+
+lm_hbAge <- lm(HbpostmgdL ~ AgeatEnroll, data=enroll) #no
+summary(lm_hbAge)
+
+lm_hbEG <- lm(HbpostmgdL ~ Egroup, data=enroll) #yes
+summary(lm_hbEG)
+
+lm_hbBW <- lm(HbpostmgdL ~ BWKg, data=enroll) #no
+summary(lm_hbBW)
+
+lm_hbfoo <- lm(HbpostmgdL ~ FOO, data=enroll) #no
+summary(lm_hbfoo)
+
+
+
+lm_both <-lm(HbpostmgdL~TRT + HbpremgdL, data=enroll)
+summary(lm_both)
+emmeans(lm_both, ~TRT)
+plot(lm_both)
+
+
+car::Anova(lm_both, type=3)
+emmeans(lm_both, ~ TRT)
+x <- emmeans(lm_both, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+summary(pairwise_comparisons, adjust="none")
+
+
+#same but remove outliers 
+
+noout<- 
+  enroll %>% 
+      filter (!HbpostmgdL>30)
+
+lm_hb <- lm(HbpostmgdL ~ TRT, data=noout) #no
+summary(lm_hb)
+
+lm_hbAge <- lm(HbpostmgdL ~ AgeatEnroll, data=noout) #no
+summary(lm_hbAge)
+
+lm_hbEG <- lm(HbpostmgdL ~ Egroup, data=noout) #yes
+summary(lm_hbEG)
+
+lm_hbBW <- lm(HbpostmgdL ~ BWKg, data=noout) #no
+summary(lm_hbBW)
+
+lm_hbfoo <- lm(HbpostmgdL ~ FOO, data=noout) #no
+summary(lm_hbfoo)
+
+
+
+lm_both <-lm(HbpostmgdL~TRT + HbpremgdL, data=noout)
+summary(lm_both)
+emmeans(lm_both, ~TRT)
+plot(lm_both)
+
+
+car::Anova(lm_both, type=3)
+emmeans(lm_both, ~ TRT)
+x <- emmeans(lm_both, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+summary(pairwise_comparisons, adjust="none")
+
+```
+
+#### Post - Pre
+
+```{r}
+#| warning: false 
+#| echo: false
+
+ggplot(enroll, aes(x = TRT, y = change, color = TRT)) +
+  geom_boxplot(outlier.shape=NA) +
+  geom_jitter() +
+    theme_classic()
+
+lm_hb <- lm(change ~ TRT, data=enroll) #no
+summary(lm_hb)
+
+lm_hbAge <- lm(change ~ AgeatEnroll, data=enroll) #no
+summary(lm_hbAge)
+
+lm_hbEG <- lm(change ~ Egroup, data=enroll) #yes
+summary(lm_hbEG)
+
+lm_hbBW <- lm(change ~ BWKg, data=enroll) #no
+summary(lm_hbBW)
+
+lm_hbfoo <- lm(change ~ FOO, data=enroll) #no
+summary(lm_hbfoo)
+
+
+lm_both <-lm(change~TRT, data=enroll)
+summary(lm_both)
+emmeans(lm_both, ~TRT)
+plot(lm_both)
+
+
+car::Anova(lm_both, type=3)
+emmeans(lm_both, ~ TRT)
+x <- emmeans(lm_both, ~ TRT)
+pairwise_comparisons <- pairs(x)
+summary(pairwise_comparisons, adjust="tukey")
+summary(pairwise_comparisons, adjust="none")
+
+
+#remove outliers
+
+noout<- 
+  enroll %>% 
+  filter(!change>15)
+
+
+lm_hb <- lm(change ~ TRT, data=noout) #no
+summary(lm_hb)
+
+lm_hbAge <- lm(change ~ AgeatEnroll, data=noout) #no
+summary(lm_hbAge)
+
+lm_hbEG <- lm(change ~ Egroup, data=noout) #yes
+summary(lm_hbEG)
+
+lm_hbBW <- lm(change ~ BWKg, data=noout) #no
+summary(lm_hbBW)
+
+lm_hbfoo <- lm(change ~ FOO, data=noout) #no
+summary(lm_hbfoo)
+
+
+lm_both <-lm(change~TRT + AgeatEnroll, data=noout)
+summary(lm_both)
+emmeans(lm_both, ~TRT)
+plot(lm_both)
+
+
+car::Anova(lm_both, type=3)
+emmeans(lm_both, ~ TRT)
 x <- emmeans(lm_both, ~ TRT)
 pairwise_comparisons <- pairs(x)
 summary(pairwise_comparisons, adjust="tukey")
