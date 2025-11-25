@@ -377,9 +377,9 @@ ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) +
 
 custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) + 
-  geom_line(size = 1)+
+  geom_line(size = 0.75)+
   scale_color_manual(values=custom_colors)+
-  geom_point(size = 1)+
+  geom_point()+
   geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width =0.2) +
   labs(
     x = "Day",
@@ -581,6 +581,7 @@ table(hsfull$TRT, hsfull$Fever)
 CrossTable(hsfull$Fever,  hsfull$Calf.Age, fisher=TRUE) #more on day 2 and 3  
 CrossTable(hsfull$Fever,  hsfull$TRT, fisher = TRUE) #yes, more in Lido?
 tab <- xtabs(~TRT + Fever + Calf.Age, data=hsfull)
+tab
 
 CrossTable(hsfull$Fever, hsfull$Egroup, fisher = TRUE) #yes, more in the second iteration which makes sense bc it was ungodly hot
 CrossTable(hsfull$Fever, hsfull$FOO, fisher = TRUE)#no
