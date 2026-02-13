@@ -224,8 +224,15 @@ hour |>
    lying = mean (LyingTime), 
    sdlying = sd(LyingTime),
    lb = mean (LyingBouts),
-   stand = mean (StandingTime)
-  )
+   stand = mean (StandingTime))
+
+#want to create a varaible called cattime that includes Day 1 (1 - 24), Day 2, etc. 
+hour <- hour |> 
+  mutate(timecat = cut(hour, 
+                breaks = c(0, 24, 48, Inf), 
+                labels = c("Day 1", "Day 2", "Day 3")))
+
+
 
 #what if we remove all the data that is >2SD in Lying time from the mean (so calves that had less than 51.1 - 2(11.8) or 23.6 min lying are removed from the data set. How many obs does that get rid of? (n = 5951 -> 5625, remove 326 observations ))
 
@@ -425,7 +432,7 @@ ggplot(step_hs, aes(x=hour, y=m_step, color = TRT))+
 
 ### Models - outliers removed
 
-#### Lying Time
+#### Lying Time - FINAL
 
 ```{r}
 #| warning: false
@@ -493,8 +500,8 @@ mod_ar1 <- lme(
   fixed = LyingTime ~ hour * TRT + AgeatEnroll + Egroup,
   random = ~ 1 | Cow,
   correlation = corAR1(form = ~ TimeNum | Cow),
-  data = hourrm
-)
+  data = hourrm)
+
 summary(mod_ar1)
 car::Anova(mod_ar1, type=3)
 
@@ -510,8 +517,14 @@ summary(pairwise_comparisons, adjust="tukey")
 
 emm_df <- as.data.frame(emm)
 
+
+
+intercept_24 <- which(levels(emm_df$hour) == "24")
+intercept_48<- which(levels(emm_df$hour) == "48")
 custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
+
 ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
+     geom_vline(xintercept = c(intercept_24, intercept_48), linetype = "dashed", color = "gray11")+
   geom_line() +
   geom_point() +
   scale_color_manual(values=custom_colors)+
@@ -522,15 +535,29 @@ ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
   theme_classic()+
   scale_y_continuous(limits = c(20, 70), breaks = seq(20, 70, by = 10))+
   scale_x_discrete(breaks = seq(0, 60, by = 4)) +
-      theme (legend.position = "none", 
+      theme (legend.position = "top", 
          legend.direction = "horizontal", 
               axis.text = element_text(color = "black", size=10), 
                legend.text = element_text(color = "black", size=10))+
                 theme(text=element_text(size=10, family = "Times New Roman"))
 
+
+#Analysis by time category like in other analysis: 
+
+lm_lay <-lmer(as.numeric(LyingTime) ~TRT*timecat + AgeatEnroll + Egroup + (1|Cow), data=hourrm)
+summary(lm_lay)
+emmeans(lm_lay, ~TRT|timecat)
+anova(lm_lay, type = 3)
+plot(lm_lay)
+
+
+emm_lay <- emmeans(lm_lay, ~ TRT | timecat)
+contrast_results <- pairs(emm_lay, reverse = FALSE)
+summary(contrast_results, adjust = "tukey")
+
 ```
 
-#### Standing Time
+#### Standing Time - FINAL
 
 ```{r}
 #| warning: false
@@ -620,8 +647,11 @@ summary(pairwise_comparisons, adjust="tukey")
 
 emm_df <- as.data.frame(emm)
 
+intercept_24 <- which(levels(emm_df$hour) == "24")
+intercept_48<- which(levels(emm_df$hour) == "48")
 custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
+ geom_vline(xintercept = c(intercept_24, intercept_48), linetype = "dashed", color = "gray11")+
   geom_line() +
   geom_point() +
   scale_color_manual(values=custom_colors)+
@@ -631,11 +661,33 @@ ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
     y = "Estimated Marginal Means of Standing Time") +
   theme_classic()+
   scale_y_continuous(limits = c(0, 30), breaks = seq(0, 30, by =5))+
-  scale_x_discrete(breaks = seq(0, 60, by = 4))
+  scale_x_discrete(breaks = seq(0, 60, by = 4))+
+  theme (legend.position = "top", 
+         legend.direction = "horizontal", 
+              axis.text = element_text(color = "black", size=10), 
+               legend.text = element_text(color = "black", size=10))+
+                theme(text=element_text(size=10, family = "Times New Roman"))
+
+
+
+
+
+
+
+lm_std <-lmer(as.numeric(StandingTime) ~TRT*timecat + AgeatEnroll + Egroup + (1|Cow), data=hourrm)
+summary(lm_std)
+emmeans(lm_std, ~TRT|timecat)
+anova(lm_std, type = 3)
+plot(lm_std)
+
+
+emm_std <- emmeans(lm_std, ~ TRT | timecat)
+contrast_results <- pairs(emm_std, reverse = FALSE)
+summary(contrast_results, adjust = "tukey")
 
 ```
 
-#### Lying Bouts
+#### Lying Bouts - FINAL
 
 ```{r}
 #| warning: false
@@ -704,6 +756,14 @@ mod_ar1 <- lme(
 )
 summary(mod_ar1)
 car::Anova(mod_ar1, type=3)
+emmeans(mod_ar1, ~TRT)
+
+comp <- emmeans(mod_ar1, pairwise ~ TRT, adjust = "tukey")
+comp$contrasts
+
+
+
+
 
 emm <- emmeans(mod_ar1, ~ TRT * hour)
 emmeans(mod_ar1, ~TRT)
@@ -730,9 +790,25 @@ ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
   scale_y_continuous(limits = c(0, 5), breaks = seq(0, 5, by =1))+
   scale_x_discrete(breaks = seq(0, 60, by = 4))
 
+
+lm_lb <-lmer(as.numeric(LyingBouts) ~TRT*timecat + AgeatEnroll + Egroup + (1|Cow), data=hourrm)
+summary(lm_lb)
+emmeans(lm_lb, ~TRT|timecat)
+anova(lm_lb, type = 3)
+plot(lm_lb)
+
+
+emm_lb <- emmeans(lm_lb, ~ TRT | timecat)
+contrast_results <- pairs(emm_lb, reverse = FALSE)
+summary(contrast_results, adjust = "tukey")
+
+
+
+
+
 ```
 
-#### Steps
+#### Steps - FINAL
 
 ```{r}
 #| warning: false
@@ -809,8 +885,12 @@ summary(pairwise_comparisons, adjust="tukey")
 
 emm_df <- as.data.frame(emm)
 
+
+intercept_24 <- which(levels(emm_df$hour) == "24")
+intercept_48<- which(levels(emm_df$hour) == "48")
 custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
+ geom_vline(xintercept = c(intercept_24, intercept_48), linetype = "dashed", color = "gray11")+
   geom_line() +
   geom_point() +
   scale_color_manual(values=custom_colors)+
@@ -821,15 +901,27 @@ ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
   theme_classic()+
   scale_y_continuous(limits = c(0, 50), breaks = seq(0, 50, by =5))+
   scale_x_discrete(breaks = seq(0, 60, by = 4)) +
-      theme (legend.position = "none", 
+      theme (legend.position = "top", 
          legend.direction = "horizontal", 
               axis.text = element_text(color = "black", size=10), 
                legend.text = element_text(color = "black", size=10))+
                 theme(text=element_text(size=10, family = "Times New Roman"))
 
+
+lm_st <-lmer(as.numeric(Steps) ~TRT*timecat + AgeatEnroll + Egroup + (1|Cow), data=hourrm)
+summary(lm_st)
+emmeans(lm_st, ~TRT|timecat)
+anova(lm_st, type = 3)
+plot(lm_st)
+
+
+emm_st <- emmeans(lm_st, ~ TRT | timecat)
+contrast_results <- pairs(emm_st, reverse = FALSE)
+summary(contrast_results, adjust = "tukey")
+
 ```
 
-#### Motion Index
+#### Motion Index - FINAL
 
 Is this a better measure of restlessness? I am unsure but I am also unsure about Steps.
 
@@ -908,8 +1000,11 @@ summary(pairwise_comparisons, adjust="tukey")
 
 emm_df <- as.data.frame(emm)
 
+intercept_24 <- which(levels(emm_df$hour) == "24")
+intercept_48<- which(levels(emm_df$hour) == "48")
 custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
+ geom_vline(xintercept = c(intercept_24, intercept_48), linetype = "dashed", color = "gray11")+  
   geom_line() +
   geom_point() +
   scale_color_manual(values=custom_colors)+
@@ -918,13 +1013,34 @@ ggplot(emm_df, aes(x = hour, y = emmean, color = TRT, group = TRT)) +
     x = "Hour from Banding",
     y = "Estimated Marginal Means of Motion Index") +
   theme_classic()+
-  scale_y_continuous(limits = c(-25, 250), breaks = seq(-25, 250, by =25))+
+  scale_y_continuous(limits = c(-25, 400), breaks = seq(-25, 400, by =25))+
   scale_x_discrete(breaks = seq(0, 60, by = 4)) +
-      theme (legend.position = "none", 
+      theme (legend.position = "top", 
          legend.direction = "horizontal", 
               axis.text = element_text(color = "black", size=10), 
                legend.text = element_text(color = "black", size=10))+
                 theme(text=element_text(size=10, family = "Times New Roman"))
+
+
+
+
+lm_mi <-lmer(as.numeric(MotionIndex) ~TRT*timecat + AgeatEnroll + Egroup + (1|Cow), data=hourrm)
+summary(lm_mi)
+emmeans(lm_mi, ~TRT|timecat)
+anova(lm_mi, type = 3)
+plot(lm_mi)
+
+emmeans(lm_mi, ~TRT)
+
+trt_compare <- emmeans(lm_mi, pairwise ~ TRT, adjust = "tukey")
+trt_compare$contrasts
+
+
+emm_mi <- emmeans(lm_mi, ~ TRT | timecat)
+contrast_results <- pairs(emm_mi, reverse = FALSE)
+summary(contrast_results, adjust = "tukey")
+
+
 ```
 
 ## Four Hour Level

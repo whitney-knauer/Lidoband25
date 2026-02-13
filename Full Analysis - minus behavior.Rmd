@@ -476,11 +476,11 @@ ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) +
   ) +
   theme_classic() +
   scale_y_continuous(limits = c(10.0,13), breaks = seq(10.0,13, by = 0.5))+
-    theme (legend.position = "none", 
+    theme (legend.position = "top", 
          legend.direction = "horizontal", 
               axis.text = element_text(color = "black", size=10), 
                legend.text = element_text(color = "black", size=9))+
-                theme(text=element_text(size=10, family = "Times New Roman"))
+                theme(text=element_text(size=12, family = "Times New Roman"))
 ```
 
 ## Health Score
@@ -578,7 +578,7 @@ CrossTable(hsfull$Scour, hsfull$Egroup, fisher = TRUE)#no
 
 
 # Fit a repeated measures mixed effects model for scours.
-hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
+#hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
 model <- glmer(Scour ~ TRT  + FOO + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
 
 summary(model)
@@ -623,7 +623,7 @@ CrossTable(hsfull$Sick, hsfull$FOO, fisher = TRUE)
 
 
 # Fit a repeated measures mixed effects model for cick.
-hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
+#hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
 model <- glmer(Sick ~ TRT  + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
 
 summary(model)
@@ -677,7 +677,7 @@ CrossTable(hsfull$Fever, hsfull$FOO, fisher = TRUE)#no
 
 
 hsfull$TRT <- factor(hsfull$TRT) 
-hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
+#hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
 model <- glmer(Fever ~ TRT + Egroup + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
 
 summary(model)
@@ -729,7 +729,7 @@ CrossTable(hsfull$Fever2, hsfull$FOO, fisher = TRUE)#no
 
 
 hsfull$TRT <- factor(hsfull$TRT) 
-hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
+#hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
 model <- glmer(Fever2 ~ TRT + Egroup + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
 
 summary(model)
@@ -1206,7 +1206,7 @@ plot(lm_both)
 
 ### Models
 
-#### Ln Transformation
+#### Ln Transformation - FINAL
 
 ```{r}
 #| warning: false 
@@ -1523,6 +1523,5 @@ health7_new %>%
   group_by(TRT) %>% 
   summarize(
       sum(DIED),
-      mean = mean(dfeDIED), 
-      sd = sd(dfeDIED))
+      mean = mean(dfeDIED))
 ```
