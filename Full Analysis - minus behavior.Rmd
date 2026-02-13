@@ -140,6 +140,89 @@ enroll<- enroll %>%
   mutate(
     change = HbpostmgdL - HbpremgdL
   )
+
+#pulling in health treatment data and merging to enroll
+stack <- read_csv('data/clean.csv')
+stack$FarmID = stack$ID
+
+
+health <- enroll %>% 
+  left_join(stack, by = "FarmID")
+
+write.csv(x = health, file = "data/health60.csv")
+
+#remove un needed variabes: 
+health_final <- 
+  health %>% 
+ dplyr::select(`Study ID`, CalfID, TRT, FOO, Egroup, AgeatEnroll, BWKg, Btime, Bdate, Edate, Etime, TP, HbpremgdL, HbpostmgdL, change, Date_PNEU1, Remark_PNEU1, Date_PNEU2, Remark_PNEU2, Date_PNEU3, Remark_PNEU3, Date_SCOURS1, Remark_SCOURS1, Date_SCOURS2, Remark_SCOURS2, Date_BLOAT1, Remark_BLOAT1, Date_BLOAT2, Remark_BLOAT2, Date_DIED1, Remark_DIED1)
+ 
+
+health_final <- health_final %>%
+  mutate(
+    BIRTH = mdy(Bdate),
+    ENROLL = mdy(Edate))
+
+
+
+#create some new variables realted to days in age at stuff and age from arrival at stuff. 
+
+#dfe pneu1
+#dfe pneu2
+#dfe pneu3
+#dfe scour1
+#dfe scour 2
+#dfe died
+
+health_final<- 
+  health_final %>% 
+  mutate(
+    dfeP1 = as.numeric(Date_PNEU1 - ENROLL),
+    dbtwP12 = as.numeric(Date_PNEU2-Date_PNEU1),
+    dbtwP23 = as.numeric(Date_PNEU3-Date_PNEU2),
+    dfeP2 = as.numeric(Date_PNEU2 - ENROLL), 
+    dfeP3 = as.numeric(Date_PNEU3 - ENROLL), 
+    dfeD1 = as.numeric(Date_SCOURS1 - ENROLL),
+    dfeD2 = as.numeric(Date_SCOURS2 - ENROLL), 
+    dbtwD12 = as.numeric(Date_SCOURS2 - Date_SCOURS1),
+    dfeDIED = as.numeric(Date_DIED1 - ENROLL))
+
+
+
+#add some new variables like pn1yn etc for all treatments but need to use days between for PN1/2/3
+
+health_final<- health_final %>% 
+  mutate(
+   PN1a = if_else(dfeP1>=0, 1, 0) %>% replace_na(0), 
+   PN2 = if_else(dfeP2>=0, 1, 0)%>% replace_na(0),
+   PN3 = if_else(dfeP3>=0, 1, 0) %>% replace_na(0), 
+   DIA1 = ifelse(dfeD1>=0, 1, 0)%>% replace_na(0), 
+   DIA2 = ifelse(dfeD2>=0, 1, 0)%>% replace_na(0), 
+   DIED = ifelse(dfeDIED>=0, 1, 0)%>% replace_na(0))
+
+
+health7_new<- health_final %>% 
+  mutate(
+    PN2a = case_when(
+      PN2 == 1 & dbtwP12 >= 7 | PN3 == 1 & dbtwP23 >= 7    ~ 1, 
+      PN2 == 1 & dbtwP12 <  7 | PN2 == 0  | PN3 == 1 & dbtwP23 < 7 ~ 0))
+
+
+health7_new<- health7_new %>% 
+  mutate(
+    Date_PN1a = Date_PNEU1)
+
+health7_new <- health7_new %>% 
+  mutate(
+    Date_PN2a = case_when(
+      PN2a == 1 & dbtwP12 <7 ~ health7_new$Date_PNEU3, 
+      PN2a == 1 & dbtwP12 >= 7 ~ health7_new$Date_PNEU2))
+
+#worked!!
+write.csv(x = health7_new, file = "data/healthfinal.csv")
+
+
+
+
 ```
 
 ## Enrollment Description
@@ -1121,9 +1204,9 @@ plot(lm_both)
 
 ```
 
-### Models 
+### Models
 
-#### Ln Transformation 
+#### Ln Transformation
 
 ```{r}
 #| warning: false 
@@ -1399,4 +1482,47 @@ summary(pairwise_comparisons, adjust="tukey")
 summary(pairwise_comparisons, adjust="none")
 
 
+```
+
+## Heath to 60d.
+
+```{r}
+#| warning: false 
+#| echo: false
+
+
+health7_new %>% 
+  filter(dfeP1 < 60) %>% 
+  group_by(TRT) %>% 
+  summarize(
+      sum(PN1a),
+      mean = mean(dfeP1), 
+      sd = sd(dfeP1))
+
+health7_new %>% 
+  filter(dfeD1 < 60) %>% 
+  group_by(TRT) %>% 
+  summarize(
+      sum(DIA1),
+      mean = mean(dfeD1), 
+      sd = sd(dfeD1))
+
+#what if remove those calves from the Hb analysis?????
+health7_new %>% 
+  filter(dfeD1 < 4) %>% 
+  group_by(TRT) %>% 
+  summarize(
+      sum(DIA1),
+      mean = mean(dfeD1), 
+      sd = sd(dfeD1),
+      meanhb = mean(HbpostmgdL))
+
+
+health7_new %>% 
+  filter(dfeDIED < 60) %>% 
+  group_by(TRT) %>% 
+  summarize(
+      sum(DIED),
+      mean = mean(dfeDIED), 
+      sd = sd(dfeDIED))
 ```
