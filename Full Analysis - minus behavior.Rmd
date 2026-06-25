@@ -52,7 +52,7 @@ library(extrafont)
 #| echo: false 
 
 #enrollment spreadsheet
-enroll <- read_csv("data/enroll.csv")
+enroll <- read_csv("data/enroll thirty.csv")
 
 enroll <- enroll |> 
   filter(`Study ID` !=32)
@@ -230,7 +230,7 @@ write.csv(x = health7_new, file = "data/healthfinal.csv")
 This describes enrollment characteristics of calves enrolled in the Lidoband Study 2025.
 
 ```{r}
-#| include: false 
+
 #| warning: false 
 #| echo: false 
 
@@ -287,8 +287,7 @@ enroll  |>
   summarize(Count = n())
 
 
-LidoMeans_Summary<- 
-  enroll |> 
+enroll |> 
   group_by(TRT) |>
   summarise(
     n = n(),
@@ -300,7 +299,7 @@ LidoMeans_Summary<-
     sd_BWKg = sd(BWKg, na.rm = TRUE)
   )
 
-gt(LidoMeans_Summary)
+
 ```
 
 ## Scrotal Circumference

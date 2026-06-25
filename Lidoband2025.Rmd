@@ -67,7 +67,7 @@ new <-
   filter(Cow != 32)
 
 
-key<- read_csv("data/calfkey.csv")
+key<- read_csv("data/calfkey thirty.csv")
 
 key<-key |> 
   filter(Cow != 32) |> 
