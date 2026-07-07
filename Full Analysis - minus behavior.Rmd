@@ -52,7 +52,7 @@ library(extrafont)
 #| echo: false 
 
 #enrollment spreadsheet
-enroll <- read_csv("data/enroll thirty.csv")
+enroll <- read_csv("data/enroll.csv")
 
 enroll <- enroll |> 
   filter(`Study ID` !=32)
@@ -427,8 +427,8 @@ anova(mod_base, mod_ar1)
 
 ```{r}
 
-scfull$Day <- factor(scfull$Day, levels = unique(scfull$Day))
-scfull$TimeNum <- as.numeric(scfull$Day)
+scfull$Day <- factor(scfull$Day, levels = c("0", "1", "2", "3"))
+scfull$TimeNum <- as.numeric(scfull$TimeNum)
 
 mod_ar1 <- lme( 
   fixed=SCAV ~ TRT*Day + BLSCAV,
@@ -457,7 +457,7 @@ ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) +
   geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width =0.2) +
   labs(
     x = "Day",
-    y = "Averge Scrotal Circumference (cm)"
+    y = "Average Scrotal Circumference (cm)"
   ) +
   theme_classic() +
   scale_y_continuous(limits = c(10.5,13), breaks = seq(10.5,13, by = 0.5))
@@ -471,7 +471,7 @@ ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) +
   geom_errorbar(aes(ymin = lower.CL, ymax = upper.CL), width =0.2) +
   labs(
     x = "Day",
-    y = "Averge Scrotal Circumference (cm)"
+    y = "Average Scrotal Circumference (cm)"
   ) +
   theme_classic() +
   scale_y_continuous(limits = c(10.0,13), breaks = seq(10.0,13, by = 0.5))+
@@ -479,7 +479,7 @@ ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) +
          legend.direction = "horizontal", 
               axis.text = element_text(color = "black", size=10), 
                legend.text = element_text(color = "black", size=9))+
-                theme(text=element_text(size=12, family = "Times New Roman"))
+                theme(text=element_text(size=12, family = "Arial"))
 ```
 
 ## Health Score
