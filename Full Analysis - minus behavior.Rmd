@@ -449,7 +449,7 @@ pairs(emm, by = "TRT")
 
 emm_df <- as.data.frame(emm)
 
-custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) + 
   geom_line(size = 1)+
   scale_color_manual(values=custom_colors)+
@@ -886,7 +886,7 @@ ethofull |>
     values = c(
       "BO" = "red4",
       "B+N" = "goldenrod2",
-      "LIDO" = "wheat"
+      "LIDO" = "wheat4"
     )
   )+
   labs(
@@ -945,7 +945,7 @@ ethofull |>
     values = c(
       "BO" = "red4",
       "B+N" = "goldenrod2",
-      "LIDO" = "wheat"
+      "LIDO" = "wheat4"
     )
   )+
   labs(
@@ -1570,7 +1570,7 @@ data_long <- data %>%
   )
 
 # 3. Define your custom color scheme
-custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 
 # 4. Create the faceted bar graph with custom colors
 ggplot(data_long, aes(x = Treatment, y = Percentage, fill = Treatment)) +

@@ -1886,10 +1886,10 @@ MI_data <- data.frame(
 custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
 ggplot(MI_data, aes(x = Period, y = MeanTime, group = Treatment, color = Treatment)) +
   theme_classic () +
-  geom_line() +   
+  geom_line(size = 1) +   
   scale_color_manual(values=custom_colors)+
   # Draw lines
-  geom_point() +                         # Add points at each data node
+  geom_point(size = 1) +                         # Add points at each data node
   geom_errorbar(aes(ymin = LowerCI, ymax = UpperCI), 
                 width = 0.1, alpha = 0.7) +      # Add 95% CI error bars
   labs(
@@ -1900,5 +1900,5 @@ ggplot(MI_data, aes(x = Period, y = MeanTime, group = Treatment, color = Treatme
     panel.grid.minor = element_blank()
   ) +
   scale_y_continuous(limits = c(20, 100)) +
-  theme(text=element_text(size=12, family = "Times New Roman"))# Adjust Y-axis for better visibility
+  theme(text=element_text(size=12, family = "Arial"))# Adjust Y-axis for better visibility
 ```
