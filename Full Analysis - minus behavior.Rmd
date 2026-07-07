@@ -560,25 +560,29 @@ hsfull |>
 
 
 #What proportion of calves scour in each group?
+newhs <- hsfull %>% 
+  filter(Calf.Age!=1)  
 
-table(hsfull$TRT, hsfull$Scour)
+
+#filtering out calves with FS>2 on day 1 who were enrolled...
+table(newhs$TRT, newhs$Scour)
 #         0  1
-#   BO   121 3 = 1/123
-#   B+N  123 1 = 3/125
-#   LIDO 113 9 = 9/122
+#   BO   91  2 = 2/93 (2.1)
+#   B+N  93  0 = 0/93 (0)
+#   LIDO 83  8 = 8/91  (8.7)
 
 #worth evaluating with models? Only n=13 calves were ID'd with abnormal FS
-CrossTable(hsfull$Scour,  hsfull$Calf.Age, fisher=TRUE) 
-CrossTable(hsfull$Scour,  hsfull$TRT, fisher = TRUE) #yes, in lidoband group
-CrossTable(hsfull$Scour, hsfull$FOO, fisher = TRUE) #yes
-CrossTable(hsfull$Scour, hsfull$Egroup, fisher = TRUE)#no
+CrossTable(newhs$Scour,  newhs$Calf.Age, fisher=TRUE) 
+CrossTable(newhs$Scour,  newhs$TRT, fisher = TRUE) #yes, in lidoband group
+CrossTable(newhs$Scour, newhs$FOO, fisher = TRUE) #yes
+CrossTable(newhs$Scour, newhs$Egroup, fisher = TRUE)#no
 
 
 
 
 # Fit a repeated measures mixed effects model for scours.
 #hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
-model <- glmer(Scour ~ TRT  + FOO + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
+model <- glmer(Scour ~ TRT + (1 + Calf.Age | CalfID), family = "binomial", data = newhs)
 
 summary(model)
 emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO")), type = "response")
@@ -608,22 +612,25 @@ summary(contrasts)
 
 #What proportion of calves sick in each group?
 
-table(hsfull$TRT, hsfull$Sick)
+newhs <- hsfull %>% 
+  filter(Calf.Age!=1) 
+
+table(newhs$TRT, newhs$Sick)
 #         0  1
-#   BO   100 17 = 17/117 (14.5)
-#   B+N  97 26 = 26/123  (21.1)
-#   LIDO 88 34 = 34/122  (27.8)
+#   BO   77 15 = 15/92 (16.3)
+#   B+N  74 15 = 15/89  (16.8)
+#   LIDO 65 26 = 26/91  (28.5)
 
 #more calves in Lido.....were they more likely to have fever? 
-CrossTable(hsfull$Sick,  hsfull$Calf.Age, fisher=TRUE) #yes, effect of day
-CrossTable(hsfull$Sick,  hsfull$TRT, fisher = TRUE) #yes
-CrossTable(hsfull$Sick, hsfull$Egroup, fisher = TRUE) #no
-CrossTable(hsfull$Sick, hsfull$FOO, fisher = TRUE)
+CrossTable(newhs$Sick,   newhs$Calf.Age, fisher=TRUE) #yes, effect of day
+CrossTable(newhs$Sick,   newhs$TRT, fisher = TRUE) #yes
+CrossTable(newhs$Sick,  newhs$Egroup, fisher = TRUE) #no
+CrossTable(newhs$Sick,  newhs$FOO, fisher = TRUE)
 
 
-# Fit a repeated measures mixed effects model for cick.
+# Fit a repeated measures mixed effects model for sick.
 #hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
-model <- glmer(Sick ~ TRT  + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
+model <- glmer(Sick ~ TRT  + (1 + Calf.Age | CalfID), family = "binomial", data = newhs)
 
 summary(model)
 emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO")), type = "response")
@@ -656,28 +663,29 @@ summary(contrasts)
 ```{r}
 #| warning: false
 
-
+newhs <- hsfull %>% 
+  filter(Calf.Age!=1)
 #What proportion of calves fever (RT > 103.5) in each group?
 
-table(hsfull$TRT, hsfull$Fever)
+table(newhs$TRT, newhs$Fever)
 #          0  1
-#   BO   116 8 = 8/124      (6.4)
-#   B+N  114 10 = 10/124    (8.1)
-#   LIDO 97 24 = 24/121     (19.8)
+#   BO   87 6 = 6/93      (6.4)
+#   B+N  83 10 = 10/93    (10.7)
+#   LIDO 69 21 = 21/90     (23.3)
 
 #more calves in Lido.....were they more likely to have fever? 
-CrossTable(hsfull$Fever,  hsfull$Calf.Age, fisher=TRUE) #more on day 2 and 3  
-CrossTable(hsfull$Fever,  hsfull$TRT, fisher = TRUE) #yes, more in Lido?
-tab <- xtabs(~TRT + Fever + Calf.Age, data=hsfull)
+CrossTable(newhs$Fever,  newhs$Calf.Age, fisher=TRUE) #more on day 2 and 3  
+CrossTable(newhs$Fever,  newhs$TRT, fisher = TRUE) #yes, more in Lido?
+tab <- xtabs(~TRT + Fever + Calf.Age, data=newhs)
 tab
 
-CrossTable(hsfull$Fever, hsfull$Egroup, fisher = TRUE) #yes, more in the second iteration which makes sense bc it was ungodly hot
-CrossTable(hsfull$Fever, hsfull$FOO, fisher = TRUE)#no
+CrossTable(newhs$Fever, newhs$Egroup, fisher = TRUE) #yes, more in the second iteration which makes sense bc it was ungodly hot
+CrossTable(newhs$Fever, newhs$FOO, fisher = TRUE)#no
 
 
-hsfull$TRT <- factor(hsfull$TRT) 
+newhs$TRT <- factor(newhs$TRT) 
 #hsfull$TRT <- relevel(hsfull$TRT, ref = "BO")
-model <- glmer(Fever ~ TRT + Egroup + (1 + Calf.Age | CalfID), family = "binomial", data = hsfull)
+model <- glmer(Fever ~ TRT + Egroup + (1 + Calf.Age | CalfID), family = "binomial", data = newhs)
 
 summary(model)
 emmeans(model, specs = "TRT", at = list(TRT = c("BO", "B+N", "LIDO")), type = "response")
@@ -1064,17 +1072,31 @@ ggplot(hb, aes(x = PrePost, y = HbmgdL, color = TRT)) +
     theme_classic()
 
 
-ggplot(hb, aes(x = TRT, y = HbmgdL, color = TRT)) +
+ggplot(hb, aes(x = TRT, y = HbmgdL, fill = TRT)) +
   geom_boxplot(outlier.shape = NA) +
   facet_wrap(vars(PrePost)) +
   geom_jitter() +
     theme_classic()+
-   scale_color_manual(
+   scale_fill_manual(
     values = c(
       "BO" = "red4",
       "B+N" = "goldenrod2",
-      "LIDO" = "wheat4"
-    ))
+      "LIDO" = "wheat4")) +
+    labs(
+    y = "Serum Haptoglobin (mg/dL)", 
+    x = NULL)+
+  theme (legend.position = "none",
+              axis.text = element_text(color = "black", size=10), 
+               legend.text = element_text(color = "black", size=9))+
+                theme(text=element_text(size=12, family = "Arial"))
+
+
+
+
+
+
+
+
 
 
 
@@ -1260,6 +1282,7 @@ x <- emmeans(lm_both, ~ TRT)
 pairwise_comparisons <- pairs(x)
 summary(pairwise_comparisons, adjust="tukey")
 summary(pairwise_comparisons, adjust="none")
+
 
 
 ```
@@ -1523,4 +1546,50 @@ health7_new %>%
   summarize(
       sum(DIED),
       mean = mean(dfeDIED))
+```
+
+## Health Graphs for Presentation
+
+```{r}
+
+# 1. Create the dataset
+data <- data.frame(
+  Condition = c("Scours (FS>=2)", "Sick (THS>4)", "Fever (RT>103.5)"),
+  BO = c(2.1, 16.3, 6.4),
+  `B+N` = c(0, 16.8, 10.7),
+  LIDO = c(8.7, 28.5, 23.3),
+  check.names = FALSE # Keeps "B+N" from turning into "B.N"
+)
+
+# 2. Reshape data from wide to long format
+data_long <- data %>%
+  pivot_longer(
+    cols = -Condition, 
+    names_to = "Treatment", 
+    values_to = "Percentage"
+  )
+
+# 3. Define your custom color scheme
+custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat")
+
+# 4. Create the faceted bar graph with custom colors
+ggplot(data_long, aes(x = Treatment, y = Percentage, fill = Treatment)) +
+  geom_col(color = "black", width = 0.6) +
+  geom_text(
+    aes(label = sprintf("%.1f%%", Percentage)), 
+    vjust = -0.5,       # Nudges the text slightly above the top of the bar
+    size = 3.5,         # Adjusts the font size of the labels
+    fontface = "bold"
+  ) +
+  facet_wrap(~ Condition) + 
+  scale_fill_manual(values = custom_colors) + # Applies your color scheme
+  theme_classic() +
+  labs(
+    x = "Treatment",
+    y = "Percentage (%)"
+  ) +
+  theme(
+    strip.text = element_text(face = "bold", size = 11),
+    legend.position = "none") +
+  scale_y_continuous(limits = c(0,30), breaks = seq(0,30, by = 5))
 ```
