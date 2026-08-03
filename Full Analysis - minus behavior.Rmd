@@ -306,9 +306,9 @@ enroll |>
 
 This describes the scrotal circumferences in calves for each of the three treatments from day 0 to day 3.
 
--   SC Summary: groups by both TRT and day, calculates mean and SD of SCAV, and removes grouping
+- SC Summary: groups by both TRT and day, calculates mean and SD of SCAV, and removes grouping
 
--   SC Overall: overall average scrotal circumference average per treatment group, standard deviation across all days combines
+- SC Overall: overall average scrotal circumference average per treatment group, standard deviation across all days combines
 
 ### Descriptive Data
 
@@ -804,6 +804,13 @@ table(ethofull$TRT, ethofull$Struggle)
 ggplot(ethofull, aes(x=Struggle))+
   geom_histogram()
 
+ethofull |> 
+  group_by(TRT) |> 
+  summarize(
+    mean = mean(Struggle),
+    sd = sd (Struggle))
+
+
 
 ggplot(ethofull, aes(x = TRT, y = Struggle, fill = TRT)) +
   geom_boxplot() +
@@ -876,6 +883,12 @@ exp(confint(model))
 ggplot(ethofull, aes(x=Tail.flick))+
   geom_histogram()
 
+ethofull |> 
+  group_by(TRT) |> 
+  summarize(
+    mean = mean(Tail.flick),
+    sd = sd (Tail.flick))
+
 
 ethofull |>
   mutate(TRT=factor(TRT, levels=c("BO", "B+N", "LIDO"))) |>
@@ -935,6 +948,13 @@ summary(pairwise_comparisons, adjust="none")
 
 ggplot(ethofull, aes(x=Kick))+
   geom_histogram()
+
+
+ethofull |> 
+  group_by(TRT) |> 
+  summarize(
+    mean = mean(Kick), 
+    sd = sd(Kick))
 
 ethofull |>
   mutate(TRT=factor(TRT, levels=c("BO", "B+N", "LIDO"))) |>
