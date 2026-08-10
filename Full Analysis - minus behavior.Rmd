@@ -460,7 +460,8 @@ ggplot(emm_df, aes(x = Day, y = emmean, color = TRT, group=TRT)) +
     y = "Average Scrotal Circumference (cm)"
   ) +
   theme_classic() +
-  scale_y_continuous(limits = c(10.5,13), breaks = seq(10.5,13, by = 0.5))
+  scale_y_continuous(limits = c(10.5,13), breaks = seq(10.5,13, by = 0.5))+
+  theme(text=element_text(size=12, family = "Calibri"))
 
 
 custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
@@ -1108,7 +1109,7 @@ ggplot(hb, aes(x = TRT, y = HbmgdL, fill = TRT)) +
   theme (legend.position = "none",
               axis.text = element_text(color = "black", size=10), 
                legend.text = element_text(color = "black", size=9))+
-                theme(text=element_text(size=12, family = "Arial"))
+                theme(text=element_text(size=12, family = "Calibri"))
 
 
 
@@ -1605,11 +1606,12 @@ ggplot(data_long, aes(x = Treatment, y = Percentage, fill = Treatment)) +
   scale_fill_manual(values = custom_colors) + # Applies your color scheme
   theme_classic() +
   labs(
-    x = "Treatment",
+    x = NULL,
     y = "Percentage (%)"
   ) +
   theme(
     strip.text = element_text(face = "bold", size = 11),
     legend.position = "none") +
-  scale_y_continuous(limits = c(0,30), breaks = seq(0,30, by = 5))
+  scale_y_continuous(limits = c(0,30), breaks = seq(0,30, by = 5))+
+  theme(text=element_text(size=12, family = "Calibri"))
 ```
