@@ -1093,6 +1093,10 @@ ggplot(hb, aes(x = PrePost, y = HbmgdL, color = TRT)) +
     theme_classic()
 
 
+hb<- hb |> 
+  mutate(
+    TRT = factor(TRT, levels = c("BO", "B+N", "LIDO")))
+
 ggplot(hb, aes(x = TRT, y = HbmgdL, fill = TRT)) +
   geom_boxplot(outlier.shape = NA) +
   facet_wrap(vars(PrePost)) +
@@ -1575,7 +1579,7 @@ health7_new %>%
 
 # 1. Create the dataset
 data <- data.frame(
-  Condition = c("Scours (FS>=2)", "Sick (THS>4)", "Fever (RT>103.5)"),
+  Condition = c("Scours (FS\u22652)", "Sick (THS>4)", "Fever (RT>103.5)"),
   BO = c(2.1, 16.3, 6.4),
   `B+N` = c(0, 16.8, 10.7),
   LIDO = c(8.7, 28.5, 23.3),
@@ -1588,7 +1592,14 @@ data_long <- data %>%
     cols = -Condition, 
     names_to = "Treatment", 
     values_to = "Percentage"
-  )
+  )%>%
+  mutate(
+    Condition = factor(
+      Condition, 
+      levels = c("Scours (FS\u22652)", "Sick (THS>4)", "Fever (RT>103.5)")), 
+    Treatment = factor(
+      Treatment,
+      levels = c("BO", "B+N", "LIDO")))
 
 # 3. Define your custom color scheme
 custom_colors <- c("BO" = "red4", "B+N" = "goldenrod2", "LIDO" = "wheat4")
